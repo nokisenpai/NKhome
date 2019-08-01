@@ -1,0 +1,21 @@
+# NKhome
+
+# MySQL connection (required)
+use-mysql: false
+host: localhost
+port: 3306
+dbName: minecraft_dev
+user: root
+password: 
+
+
+# Options
+
+# The same name gave to Bungee config
+server-name: 'world'
+
+# Number max home per rank
+ranks:
+  member: 2
+  vip: 5
+  admin: 10

@@ -1,0 +1,20 @@
+name: NKhome
+main: be.noki_senpai.NKhome.NKhome
+version: 0.0.1
+api-version: 1.14
+author: 'NoKi_senpai'
+description: 'Allows players to have homes'
+website: www.lumen.ovh
+commands:
+  home:
+    description: "Teleport to specified home"
+    usage: /<command> <home_name>
+  sethome:
+    description: "Set a home at current location"
+    usage: /<command> <home_name>
+  delhome:
+    description: "Delete a specified home"
+    usage: /<command> <home_name>
+  homes:
+    description: "Display all home names"
+    usage: /<command> [player]
