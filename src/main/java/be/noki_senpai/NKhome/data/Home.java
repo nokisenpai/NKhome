@@ -6,22 +6,24 @@ public class Home
 	private int id;
 	private String server;
 	private String name;
+	private String world;
 	private double x;
 	private double y;
 	private double z;
-	private double facing;
-	private double rotation;
-	public Home(int cpt, int id, String server, String name, double x, double y, double z, double facing, double rotation)
+	private float pitch;
+	private float yaw;
+	public Home(int cpt, int id, String server, String name, String world, double x, double y, double z, float pitch, float yaw)
 	{
 		setCpt(cpt);
 		setId(id);
 		setServer(server);
 		setName(name);
+		setWorld(world);
 		setX(x);
 		setY(y);
 		setZ(z);
-		setFacing(facing);
-		setRotation(rotation);
+		setPitch(pitch);
+		setYaw(yaw);
 	}
 	
 	
@@ -69,6 +71,16 @@ public class Home
 	{
 		this.name = name;
 	}
+
+	// Getter & Setter 'world'
+	public String getWorld()
+	{
+		return world;
+	}
+	public void setWorld(String world)
+	{
+		this.world = world;
+	}
 	
 	// Getter & Setter 'x'
 	public double getX()
@@ -100,24 +112,24 @@ public class Home
 		this.z = z;
 	}
 	
-	// Getter & Setter 'facing'
-	public double getFacing()
+	// Getter & Setter 'pitch'
+	public float getPitch()
 	{
-		return facing;
+		return pitch;
 	}
-	public void setFacing(double facing)
+	public void setPitch(float pitch)
 	{
-		this.facing = facing;
+		this.pitch = pitch;
 	}
 	
-	// Getter & Setter 'rotation'
-	public double getRotation()
+	// Getter & Setter 'yaw'
+	public float getYaw()
 	{
-		return rotation;
+		return yaw;
 	}
-	public void setRotation(double rotation)
+	public void setYaw(float yaw)
 	{
-		this.rotation = rotation;
+		this.yaw = yaw;
 	}
 	
 	

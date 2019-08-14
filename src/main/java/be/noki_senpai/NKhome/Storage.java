@@ -55,11 +55,12 @@ public class Storage
 			        s.close();
 			        
 			        
-			        // Creating home_bonus table
-			        req = "CREATE TABLE IF NOT EXISTS `" + table.get("home_bonus") + "` (" +
+			        // Creating players_datas table
+			        req = "CREATE TABLE IF NOT EXISTS `" + table.get("players_datas") + "` (" +
 						 "`id` int(11) NOT NULL AUTO_INCREMENT," +
 						 "`player_id` int(11) NOT NULL," +
 						 "`bonus` int(11) NOT NULL," +
+						 "`home_tp` int(11)," +
 						 "PRIMARY KEY (`id`)" +
 						") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 					s = bdd.createStatement();
@@ -72,11 +73,12 @@ public class Storage
 						 "`player_id` int(11) NOT NULL," +
 						 "`server` varchar(40) NOT NULL," +
 						 "`name` varchar(40) NOT NULL," +
+						 "`world` varchar(40) NOT NULL," +
 						 "`x` double NOT NULL," +
 						 "`y` double NOT NULL," +
 						 "`z` double NOT NULL," +
-						 "`facing` double NOT NULL," +
-						 "`rotation` double NOT NULL," +
+						 "`pitch` float NOT NULL," +
+						 "`yaw` float NOT NULL," +
 						 "`tp` boolean NOT NULL," +
 						 "PRIMARY KEY (`id`)" +
 						") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
@@ -149,7 +151,7 @@ public class Storage
 	        }
 	        
 	        //if 1 or more tables are missing
-	        else if(count < table.size())
+	        if(count < table.size())
         	{
         		console.sendMessage(ChatColor.DARK_RED + PName + " Missing table(s). Please don't alter tables name or structure in database. (Error#main.Storage.002)");
         		return false;
