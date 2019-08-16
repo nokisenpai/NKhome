@@ -79,8 +79,8 @@ public class Storage
 						 "`z` double NOT NULL," +
 						 "`pitch` float NOT NULL," +
 						 "`yaw` float NOT NULL," +
-						 "`tp` boolean NOT NULL," +
-						 "PRIMARY KEY (`id`)" +
+						 "PRIMARY KEY (`id`)," +
+						 "UNIQUE INDEX `home_player_id_name_UNIQUE` (`player_id` ASC, `name` ASC)" +
 						") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 					s = bdd.createStatement();
 			        s.execute(req);

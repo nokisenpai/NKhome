@@ -5,8 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -20,6 +22,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import be.noki_senpai.NKhome.cmd.ConvertEssentialsHomesCmd;
 import be.noki_senpai.NKhome.cmd.DelHomeCmd;
 import be.noki_senpai.NKhome.cmd.HomeCmd;
 import be.noki_senpai.NKhome.cmd.HomesCmd;
@@ -42,6 +45,8 @@ public class NKhome extends JavaPlugin
 	// Options
 	public static String serverName = "world";
 	public static Map<String, Integer> ranks = new TreeMap<String, Integer>(String.CASE_INSENSITIVE_ORDER);
+	public static Map<String, String> convertGroup = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+	public static List<String> convertIgnore = new ArrayList<String>();
 	
 	// Players datas
 	public static Map<String, NKPlayer> players = new TreeMap<String, NKPlayer>(String.CASE_INSENSITIVE_ORDER);
@@ -64,6 +69,7 @@ public class NKhome extends JavaPlugin
 			prefix = this.getConfig().getString("table-prefix");
 			serverName = this.getConfig().getString("server-name");
 			
+			// Get max home per ranks
 			ConfigurationSection sec = this.getConfig().getConfigurationSection("ranks");
 	        for(String key : sec.getKeys(false))
 	        {
@@ -76,8 +82,20 @@ public class NKhome extends JavaPlugin
 				getServer().getPluginManager().disablePlugin(this);
 				return;
 	        }
-			
-			
+	        
+	        // Get servers structure for conversion from Essentials
+	        ConfigurationSection sec2 = this.getConfig().getConfigurationSection("convert-group");
+	        for(String server : sec2.getKeys(false))
+	        {
+	        	for(String world : this.getConfig().getStringList("convert-group." + server))
+		        {
+	        		convertGroup.putIfAbsent(world, server);
+		        }
+	        }
+	        
+	        // Get ignored worlds for conversion from Essentials
+	        convertIgnore = this.getConfig().getStringList("convert-ignore");
+	        
 			// Save table name
 			table.put("homes", prefix + "homes");
 			table.put("players_datas", prefix + "players_datas");
@@ -113,12 +131,13 @@ public class NKhome extends JavaPlugin
 			// On command
 			getServer().getPluginManager().registerEvents(new PlayerConnectionListener(), this);
 			getServer().getPluginManager().registerEvents(new PlayerBedEnter(), this);
-			this.getCommand("testhome").setTabCompleter(new HomeCompleter());
-			this.getCommand("testdelhome").setTabCompleter(new HomeCompleter());
-			getCommand("testhome").setExecutor(new HomeCmd());
-			getCommand("testsethome").setExecutor(new SetHomeCmd());
-			getCommand("testdelhome").setExecutor(new DelHomeCmd());
-			getCommand("testhomes").setExecutor(new HomesCmd());
+			this.getCommand("home").setTabCompleter(new HomeCompleter());
+			this.getCommand("delhome").setTabCompleter(new HomeCompleter());
+			getCommand("home").setExecutor(new HomeCmd());
+			getCommand("sethome").setExecutor(new SetHomeCmd());
+			getCommand("delhome").setExecutor(new DelHomeCmd());
+			getCommand("homes").setExecutor(new HomesCmd());
+			getCommand("convertessentialshomes").setExecutor(new ConvertEssentialsHomesCmd());
 			
 			// Data exchange between servers
 			this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
@@ -315,7 +334,7 @@ public class NKhome extends JavaPlugin
 			        if(homeName.equals("bed"))
 			        {
 			        	bdd = NKhome.getInstance().getConnection();
-						req = "INSERT INTO " + NKhome.table.get("homes") + " ( player_id, server, name, world, x, y, z, pitch, yaw, tp ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? , 0)";		        
+						req = "INSERT INTO " + NKhome.table.get("homes") + " ( player_id, server, name, world, x, y, z, pitch, yaw ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? )";		        
 				        ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);       
 				        ps.setInt(1, NKhome.players.get(playerName).getId());
 				        ps.setString(2, NKhome.serverName);
@@ -346,7 +365,7 @@ public class NKhome extends JavaPlugin
 			        else
 			        {
 			        	bdd = NKhome.getInstance().getConnection();
-						req = "INSERT INTO " + NKhome.table.get("homes") + " ( player_id, server, name, world, x, y, z, pitch, yaw, tp ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? , 0)";		        
+						req = "INSERT INTO " + NKhome.table.get("homes") + " ( player_id, server, name, world, x, y, z, pitch, yaw ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? )";		        
 				        ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);       
 				        ps.setInt(1, NKhome.players.get(playerName).getId());
 				        ps.setString(2, NKhome.serverName);
