@@ -20,3 +20,35 @@ ranks:
   member: 2
   vip: 5
   admin: 10
+
+# Used for the conversion of Essentials homes. /!\ Only if you have separated worlds which were on the same server on different servers.
+# Servers's groups of worlds for correctly convert Essentials homes group by server. Needed to match world name with a server name.
+# Servers names must be the same gave to Bungee config.
+# Worlds names must be the same used while the use of Essentials plugin.
+# Config structure is like :
+#convert-group:
+#  serverName1:
+#    - worldName1
+#    - worldName2
+#    - worldName3
+#  serverName2:
+#    - worldName4
+#    - worldName5
+#    - worldName6
+    
+convert-group:
+  server1:
+    - monde1
+    - monde2
+    - monde3
+  server2:
+    - monde4
+    - monde5
+    - monde6
+
+# Used for the conversion of Essentials homes.
+# Homes from one of these worlds will be ignored
+convert-ignore:
+  - monde7
+  - monde8
+  - monde9
