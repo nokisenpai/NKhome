@@ -15,7 +15,6 @@ import java.util.TreeMap;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -522,13 +521,14 @@ public class NKhome extends JavaPlugin
 	// Utils functions
 	//######################################
 	
+	@SuppressWarnings("deprecation")
 	public static Location safeLocation(String worldName, double x, double y, double z, float yaw, float pitch )
 	{
 		World world = NKhome.getInstance().getServer().getWorld(worldName);
 		if(world != null)
 		{
 			// Block location
-			if(world.getBlockAt(CoordTask.BlockCoord(x), (int)y + 1, CoordTask.BlockCoord(z)).getType() == Material.AIR)
+			if(world.getBlockAt(CoordTask.BlockCoord(x), (int)y + 1, CoordTask.BlockCoord(z)).getType().isTransparent())
 			{
 				return new Location( world, x, y, z, yaw, pitch );
 			}
@@ -536,6 +536,7 @@ public class NKhome extends JavaPlugin
 		return null;
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static Location safeBedLocation(String worldName, double x, double y, double z, float yaw, float pitch )
 	{
 		
@@ -543,31 +544,31 @@ public class NKhome extends JavaPlugin
 		if(world != null)
 		{
 			//droite
-			if(world.getBlockAt(CoordTask.BlockCoord(x) + 1, (int)y, CoordTask.BlockCoord(z)).getType() == Material.AIR && 
-					world.getBlockAt(CoordTask.BlockCoord(x) + 1, (int)y + 1, CoordTask.BlockCoord(z)).getType() == Material.AIR)
+			if(world.getBlockAt(CoordTask.BlockCoord(x) + 1, (int)y, CoordTask.BlockCoord(z)).getType().isTransparent() && 
+					world.getBlockAt(CoordTask.BlockCoord(x) + 1, (int)y + 1, CoordTask.BlockCoord(z)).getType().isTransparent())
 			{
 				return new Location( world, x+1, y, z, yaw, pitch );
 			}
 			//gauche
-			if(world.getBlockAt(CoordTask.BlockCoord(x) - 1, (int)y, CoordTask.BlockCoord(z)).getType() == Material.AIR && 
-					world.getBlockAt(CoordTask.BlockCoord(x) - 1, (int)y + 1, CoordTask.BlockCoord(z)).getType() == Material.AIR)
+			if(world.getBlockAt(CoordTask.BlockCoord(x) - 1, (int)y, CoordTask.BlockCoord(z)).getType().isTransparent() && 
+					world.getBlockAt(CoordTask.BlockCoord(x) - 1, (int)y + 1, CoordTask.BlockCoord(z)).getType().isTransparent())
 			{
 				return new Location( world, x-1, y, z, yaw, pitch );
 			}
 			//haut
-			if(world.getBlockAt(CoordTask.BlockCoord(x), (int)y, CoordTask.BlockCoord(z) + 1).getType() == Material.AIR && 
-					world.getBlockAt(CoordTask.BlockCoord(x), (int)y + 1, CoordTask.BlockCoord(z) + 1).getType() == Material.AIR)
+			if(world.getBlockAt(CoordTask.BlockCoord(x), (int)y, CoordTask.BlockCoord(z) + 1).getType().isTransparent() && 
+					world.getBlockAt(CoordTask.BlockCoord(x), (int)y + 1, CoordTask.BlockCoord(z) + 1).getType().isTransparent())
 			{
 				return new Location( world, x, y, z+1, yaw, pitch );
 			}
 			//bas
-			if(world.getBlockAt(CoordTask.BlockCoord(x), (int)y, CoordTask.BlockCoord(z) - 1).getType() == Material.AIR && 
-					world.getBlockAt(CoordTask.BlockCoord(x), (int)y + 1, CoordTask.BlockCoord(z) - 1).getType() == Material.AIR)
+			if(world.getBlockAt(CoordTask.BlockCoord(x), (int)y, CoordTask.BlockCoord(z) - 1).getType().isTransparent() && 
+					world.getBlockAt(CoordTask.BlockCoord(x), (int)y + 1, CoordTask.BlockCoord(z) - 1).getType().isTransparent())
 			{
 				return new Location( world, x, y, z-1, yaw, pitch );
 			}
 			// Bed location
-			if(world.getBlockAt(CoordTask.BlockCoord(x), (int)y + 1, CoordTask.BlockCoord(z)).getType() == Material.AIR)
+			if(world.getBlockAt(CoordTask.BlockCoord(x), (int)y + 1, CoordTask.BlockCoord(z)).getType().isTransparent())
 			{
 				return new Location( world, x, y, z, yaw, pitch );
 			}
