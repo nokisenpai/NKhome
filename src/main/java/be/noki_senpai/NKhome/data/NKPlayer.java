@@ -45,38 +45,38 @@ public class NKPlayer
 			ps = bdd.prepareStatement(req);
 			ps.setString(1, getPlayerUUID().toString());
 			
-	        resultat = ps.executeQuery();
-	        
-	        // If there is a result account exist
-	        if(resultat.next()) 
-	        {
-	        	setId(resultat.getInt("id"));
+			resultat = ps.executeQuery();
+			
+			// If there is a result account exist
+			if(resultat.next()) 
+			{
+				setId(resultat.getInt("id"));
 
-	        	setHomeBonus(resultat.getInt("bonus"));
-	        	homeTp = resultat.getInt("home_tp");
-	        	// If names are differents, update in database
-	        	if(!resultat.getString("name").equals(getPlayerName()))
-	        	{
-	        		ps.close();
-		        	resultat.close();
-		        	
-	        		req = "UPDATE " + NKhome.table.get("players") + " SET name = ? WHERE id = ?";  
-			        ps = bdd.prepareStatement(req);
-			        ps.setString(1, getPlayerName());
-			        ps.setInt(2, getId());
-			        
-			        ps.executeUpdate();
-			        ps.close();
-	        	}
-	        	else
-	        	{
-	        		ps.close();
-		        	resultat.close();
-	        	}
-	        	
-	        	if(homeTp != -1)
-	        	{
-	        		req = "SELECT server, name, world, x, y, z, pitch, yaw FROM " + NKhome.table.get("homes") + " WHERE id = ?";
+				setHomeBonus(resultat.getInt("bonus"));
+				homeTp = resultat.getInt("home_tp");
+				// If names are differents, update in database
+				if(!resultat.getString("name").equals(getPlayerName()))
+				{
+					ps.close();
+					resultat.close();
+					
+					req = "UPDATE " + NKhome.table.get("players") + " SET name = ? WHERE id = ?";  
+					ps = bdd.prepareStatement(req);
+					ps.setString(1, getPlayerName());
+					ps.setInt(2, getId());
+					
+					ps.executeUpdate();
+					ps.close();
+				}
+				else
+				{
+					ps.close();
+					resultat.close();
+				}
+				
+				if(homeTp != -1)
+				{
+					req = "SELECT server, name, world, x, y, z, pitch, yaw FROM " + NKhome.table.get("homes") + " WHERE id = ?";
 					ps = bdd.prepareStatement(req);
 					ps.setInt(1, homeTp);
 					resultat = ps.executeQuery();
@@ -120,17 +120,17 @@ public class NKPlayer
 						}
 					}
 					ps.close();
-		        	resultat.close();
-		        	NKhome.setTpHome(getId(), -1);
-	        	}
-	        	
-	        	req = "SELECT id, server, name, world, x, y, z, pitch, yaw FROM " + NKhome.table.get("homes") + " WHERE player_id = ?";
+					resultat.close();
+					NKhome.setTpHome(getId(), -1);
+				}
+				
+				req = "SELECT id, server, name, world, x, y, z, pitch, yaw FROM " + NKhome.table.get("homes") + " WHERE player_id = ?";
 				ps = bdd.prepareStatement(req);
 				ps.setInt(1, getId());
 				resultat = ps.executeQuery();
 				
 				while(resultat.next()) 
-		        {
+				{
 					if(resultat.getString("name").equals("bed"))
 					{
 						setBed(resultat.getInt("id"), 
@@ -155,36 +155,36 @@ public class NKPlayer
 								resultat.getFloat("pitch"),
 								resultat.getFloat("yaw"));
 					}
-		        }
+				}
 				ps.close();
 				resultat.close();
-	        }
-	        else
-	        {
-	        	//Add new player on database
-	        	ps.close();
-	        	resultat.close();
-	        	
-	        	req = "INSERT INTO " + NKhome.table.get("players") + " ( uuid, name) VALUES ( ? , ? )";		        
-		        ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);
-		        ps.setString(1, getPlayerUUID().toString());
-		        ps.setString(2, getPlayerName());
-		        ps.executeUpdate();  
-		        resultat = ps.getGeneratedKeys();    
-		        
-		        resultat.next();  
-		        setId(resultat.getInt(1));
-		        
-		        ps.close();
-		        resultat.close();
-		        
-		        req = "INSERT INTO " + NKhome.table.get("players_datas") + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";		        
-		        ps = bdd.prepareStatement(req);
-		        ps.setInt(1, this.getId());
-		        ps.executeUpdate();  
-		        
-		        ps.close();
-	        }
+			}
+			else
+			{
+				//Add new player on database
+				ps.close();
+				resultat.close();
+				
+				req = "INSERT INTO " + NKhome.table.get("players") + " ( uuid, name) VALUES ( ? , ? )";				
+				ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);
+				ps.setString(1, getPlayerUUID().toString());
+				ps.setString(2, getPlayerName());
+				ps.executeUpdate();  
+				resultat = ps.getGeneratedKeys();	
+				
+				resultat.next();  
+				setId(resultat.getInt(1));
+				
+				ps.close();
+				resultat.close();
+				
+				req = "INSERT INTO " + NKhome.table.get("players_datas") + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";				
+				ps = bdd.prepareStatement(req);
+				ps.setInt(1, this.getId());
+				ps.executeUpdate();  
+				
+				ps.close();
+			}
 		} 
 		catch (SQLException e) 
 		{
@@ -303,23 +303,23 @@ public class NKPlayer
 	{
 		new BukkitRunnable() 
 		{
-		    @Override
-		    public void run() 
-		    {
-		    	Connection bdd = null;
+			@Override
+			public void run() 
+			{
+				Connection bdd = null;
 				PreparedStatement ps = null;
 				String req = null;
 
-		        try
+				try
 				{
-		        	/*
-		        		INSERT INTO component_psar (tbl_id, row_nr, col_1, col_2, col_3, col_4, col_5, col_6, unit, add_info, fsar_lock)
+					/*
+						INSERT INTO component_psar (tbl_id, row_nr, col_1, col_2, col_3, col_4, col_5, col_6, unit, add_info, fsar_lock)
 						VALUES('2', '1', '1', '1', '1', '1', '1', '1', '1', '1', 'N')
 						ON DUPLICATE KEY UPDATE col_1 = VALUES(col_1), col_2 = VALUES(col_2), col_3 = VALUES(col_3), col_4 = VALUES(col_4), col_5 = VALUES(col_5), col_6 = VALUES(col_6), unit = VALUES(unit), add_info = VALUES(add_info), fsar_lock = VALUES(fsar_lock)
-		        	 s
-		        	bdd = NKeconomy.getInstance().getConnection();
-		        	
-		        	req = "UPDATE " + NKeconomy.table.get("accounts") + " SET amount = ? WHERE uuid = ?";
+					 s
+					bdd = NKeconomy.getInstance().getConnection();
+					
+					req = "UPDATE " + NKeconomy.table.get("accounts") + " SET amount = ? WHERE uuid = ?";
 					ps = bdd.prepareStatement(req);
 					ps.setDouble(1, getAmount());
 					ps.setString(2, getPlayerUUID().toString());
@@ -327,11 +327,11 @@ public class NKPlayer
 					ps.executeUpdate();
 					ps.close();
 				} 
-		        catch (SQLException e)
+				catch (SQLException e)
 				{
 					e.printStackTrace();
 				}
-		    }
+			}
 		}.runTaskAsynchronously(NKeconomy.getInstance());
 	}*/
 }
