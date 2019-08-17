@@ -13,19 +13,19 @@ import be.noki_senpai.NKhome.NKhome;
 
 public class HomeCompleter implements TabCompleter 
 {
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) 
-    {
-    	if (sender instanceof Player) 
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) 
+	{
+		if (sender instanceof Player) 
 		{
-	    	if(args.length==1)
-	    	{
-		        final List<String> completions = new ArrayList<>();
-		        org.bukkit.util.StringUtil.copyPartialMatches(args[0], NKhome.players.get(sender.getName()).getHomes().keySet(), completions);
-		        Collections.sort(completions);
-		        return completions;
-	    	}
+			if(args.length==1)
+			{
+				final List<String> completions = new ArrayList<>();
+				org.bukkit.util.StringUtil.copyPartialMatches(args[0], NKhome.players.get(sender.getName()).getHomes().keySet(), completions);
+				Collections.sort(completions);
+				return completions;
+			}
 		}
-    	return null;
-    }
+		return null;
+	}
 }

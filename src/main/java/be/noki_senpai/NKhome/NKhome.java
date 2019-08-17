@@ -58,7 +58,7 @@ public class NKhome extends JavaPlugin
 	
 	// Fired when plugin is first enabled
 	@Override
-    public void onEnable() 
+	public void onEnable() 
 	{
 		instance = this;
 		
@@ -71,31 +71,31 @@ public class NKhome extends JavaPlugin
 			
 			// Get max home per ranks
 			ConfigurationSection sec = this.getConfig().getConfigurationSection("ranks");
-	        for(String key : sec.getKeys(false))
-	        {
-	            ranks.putIfAbsent(key, this.getConfig().getInt("ranks." + key));
-	        }
+			for(String key : sec.getKeys(false))
+			{
+				ranks.putIfAbsent(key, this.getConfig().getInt("ranks." + key));
+			}
 
-	        if(ranks.size() == 0)
-	        {
-	        	console.sendMessage(ChatColor.DARK_RED + PName + " No rank found in config.yml.");
+			if(ranks.size() == 0)
+			{
+				console.sendMessage(ChatColor.DARK_RED + PName + " No rank found in config.yml.");
 				getServer().getPluginManager().disablePlugin(this);
 				return;
-	        }
-	        
-	        // Get servers structure for conversion from Essentials
-	        ConfigurationSection sec2 = this.getConfig().getConfigurationSection("convert-group");
-	        for(String server : sec2.getKeys(false))
-	        {
-	        	for(String world : this.getConfig().getStringList("convert-group." + server))
-		        {
-	        		convertGroup.putIfAbsent(world, server);
-		        }
-	        }
-	        
-	        // Get ignored worlds for conversion from Essentials
-	        convertIgnore = this.getConfig().getStringList("convert-ignore");
-	        
+			}
+			
+			// Get servers structure for conversion from Essentials
+			ConfigurationSection sec2 = this.getConfig().getConfigurationSection("convert-group");
+			for(String server : sec2.getKeys(false))
+			{
+				for(String world : this.getConfig().getStringList("convert-group." + server))
+				{
+					convertGroup.putIfAbsent(world, server);
+				}
+			}
+			
+			// Get ignored worlds for conversion from Essentials
+			convertIgnore = this.getConfig().getStringList("convert-ignore");
+			
 			// Save table name
 			table.put("homes", prefix + "homes");
 			table.put("players_datas", prefix + "players_datas");
@@ -142,11 +142,11 @@ public class NKhome extends JavaPlugin
 			// Data exchange between servers
 			this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 			
-		    // Get all connected players
+			// Get all connected players
 			Bukkit.getOnlinePlayers().forEach(player -> players.putIfAbsent(player.getDisplayName(), new NKPlayer(player.getUniqueId())));
 			
-			console.sendMessage(ChatColor.WHITE + "      .--. ");
-			console.sendMessage(ChatColor.WHITE + "      |   '.   " + ChatColor.GREEN + PName + " by NoKi_senpai - successfully enabled !");
+			console.sendMessage(ChatColor.WHITE + "	  .--. ");
+			console.sendMessage(ChatColor.WHITE + "	  |   '.   " + ChatColor.GREEN + PName + " by NoKi_senpai - successfully enabled !");
 			console.sendMessage(ChatColor.WHITE + "'-..____.-'");
 		}
 		else
@@ -156,35 +156,35 @@ public class NKhome extends JavaPlugin
 			return;
 		}
 		
-    }
+	}
 	
 	
-    // Fired when plugin is disabled
-    @Override
-    public void onDisable() 
-    {
-    	if(bdd != null)
-    	{
-    		players.clear();
-        	try
-    		{
-    			bdd.close();
-    		} 
-        	catch (SQLException e)
-    		{
-    			e.printStackTrace();
-    		}
-    	}
-    	console.sendMessage(ChatColor.GREEN + PName + " has been disable.");
-    }
-    
+	// Fired when plugin is disabled
+	@Override
+	public void onDisable() 
+	{
+		if(bdd != null)
+		{
+			players.clear();
+			try
+			{
+				bdd.close();
+			} 
+			catch (SQLException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		console.sendMessage(ChatColor.GREEN + PName + " has been disable.");
+	}
+	
 
-    
+	
 	//######################################
 	// Getters & Setters
 	//######################################
-    
-    // Getter 'instance'
+	
+	// Getter 'instance'
 	public static NKhome getInstance()
 	{
 		return instance;
@@ -242,76 +242,76 @@ public class NKhome extends JavaPlugin
 	{
 		new BukkitRunnable() 
 		{
-		    @Override
-		    public void run() 
-		    {
-		    	Connection bdd = null;
+			@Override
+			public void run() 
+			{
+				Connection bdd = null;
 				PreparedStatement ps = null;
 				String req = null;
 				
 				try
 				{
 					
-			        
-			        
+					
+					
 					if(homeName.equals("bed"))
-			        {
+					{
 						bdd = NKhome.getInstance().getConnection();
 						
 						req = "UPDATE " + NKhome.table.get("homes") + " SET server = ? , x = ? , y = ? , z = ? , pitch = ? , yaw = ? WHERE id = ?";  
-				        ps = bdd.prepareStatement(req);
-				        ps.setString(1, NKhome.serverName);
-				        ps.setDouble(2, CoordTask.BedNegateAdjust(location.getX()));
-				        ps.setDouble(3, location.getY());
-				        ps.setDouble(4, CoordTask.BedNegateAdjust(location.getZ()));
-				        ps.setDouble(5, location.getPitch());
-				        ps.setDouble(6, location.getYaw());
-				        
+						ps = bdd.prepareStatement(req);
+						ps.setString(1, NKhome.serverName);
+						ps.setDouble(2, CoordTask.BedNegateAdjust(location.getX()));
+						ps.setDouble(3, location.getY());
+						ps.setDouble(4, CoordTask.BedNegateAdjust(location.getZ()));
+						ps.setDouble(5, location.getPitch());
+						ps.setDouble(6, location.getYaw());
+						
 						NKhome.players.get(playerName).getBed().setServer(NKhome.serverName);
-				        NKhome.players.get(playerName).getBed().setX(CoordTask.BedNegateAdjust(location.getX()));
-				        NKhome.players.get(playerName).getBed().setY(location.getY());
-				        NKhome.players.get(playerName).getBed().setZ(CoordTask.BedNegateAdjust(location.getZ()));
-				        NKhome.players.get(playerName).getBed().setPitch(location.getPitch());
-				        NKhome.players.get(playerName).getBed().setYaw(location.getYaw());
-				        
-				        ps.setInt(7, NKhome.players.get(playerName).getBed().getId());
-			        }
-			        else
-			        {
-			        	bdd = NKhome.getInstance().getConnection();
+						NKhome.players.get(playerName).getBed().setX(CoordTask.BedNegateAdjust(location.getX()));
+						NKhome.players.get(playerName).getBed().setY(location.getY());
+						NKhome.players.get(playerName).getBed().setZ(CoordTask.BedNegateAdjust(location.getZ()));
+						NKhome.players.get(playerName).getBed().setPitch(location.getPitch());
+						NKhome.players.get(playerName).getBed().setYaw(location.getYaw());
+						
+						ps.setInt(7, NKhome.players.get(playerName).getBed().getId());
+					}
+					else
+					{
+						bdd = NKhome.getInstance().getConnection();
 						
 						req = "UPDATE " + NKhome.table.get("homes") + " SET server = ? , x = ? , y = ? , z = ? , pitch = ? , yaw = ? WHERE id = ?";  
-				        ps = bdd.prepareStatement(req);
-				        ps.setString(1, NKhome.serverName);
-				        ps.setDouble(2, location.getX());
-				        ps.setDouble(3, location.getY());
-				        ps.setDouble(4, location.getZ());
-				        ps.setDouble(5, location.getPitch());
-				        ps.setDouble(6, location.getYaw());
-				        
-			        	NKhome.players.get(playerName).getHomes().get(homeName).setServer(NKhome.serverName);
-				        NKhome.players.get(playerName).getHomes().get(homeName).setX(location.getX());
-				        NKhome.players.get(playerName).getHomes().get(homeName).setY(location.getY());
-				        NKhome.players.get(playerName).getHomes().get(homeName).setZ(location.getZ());
-				        NKhome.players.get(playerName).getHomes().get(homeName).setPitch(location.getPitch());
-				        NKhome.players.get(playerName).getHomes().get(homeName).setYaw(location.getYaw());
-				        
-				        ps.setInt(7, NKhome.players.get(playerName).getHomes().get(homeName).getId());
-			        }
+						ps = bdd.prepareStatement(req);
+						ps.setString(1, NKhome.serverName);
+						ps.setDouble(2, location.getX());
+						ps.setDouble(3, location.getY());
+						ps.setDouble(4, location.getZ());
+						ps.setDouble(5, location.getPitch());
+						ps.setDouble(6, location.getYaw());
+						
+						NKhome.players.get(playerName).getHomes().get(homeName).setServer(NKhome.serverName);
+						NKhome.players.get(playerName).getHomes().get(homeName).setX(location.getX());
+						NKhome.players.get(playerName).getHomes().get(homeName).setY(location.getY());
+						NKhome.players.get(playerName).getHomes().get(homeName).setZ(location.getZ());
+						NKhome.players.get(playerName).getHomes().get(homeName).setPitch(location.getPitch());
+						NKhome.players.get(playerName).getHomes().get(homeName).setYaw(location.getYaw());
+						
+						ps.setInt(7, NKhome.players.get(playerName).getHomes().get(homeName).getId());
+					}
 					
-			        
 					
-			        
-			        
-			        ps.executeUpdate();
-			        ps.close();		        
+					
+					
+					
+					ps.executeUpdate();
+					ps.close();				
 				}
 				catch (SQLException e) 
 				{
 					NKhome.getInstance().getConsole().sendMessage(ChatColor.DARK_RED + NKhome.PName + " Error while setting a home.");
 					e.printStackTrace();
 				}	
-		    }
+			}
 		}.runTaskAsynchronously(NKhome.getInstance());
 	}
 	
@@ -321,9 +321,9 @@ public class NKhome extends JavaPlugin
 	{
 		new BukkitRunnable() 
 		{
-		    @Override
-		    public void run() 
-		    {
+			@Override
+			public void run() 
+			{
 				Connection bdd = null;
 				ResultSet resultat = null;
 				PreparedStatement ps = null;
@@ -331,28 +331,28 @@ public class NKhome extends JavaPlugin
 				
 				try
 				{
-			        if(homeName.equals("bed"))
-			        {
-			        	bdd = NKhome.getInstance().getConnection();
-						req = "INSERT INTO " + NKhome.table.get("homes") + " ( player_id, server, name, world, x, y, z, pitch, yaw ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? )";		        
-				        ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);       
-				        ps.setInt(1, NKhome.players.get(playerName).getId());
-				        ps.setString(2, NKhome.serverName);
-				        ps.setString(3, homeName);
-				        ps.setString(4, location.getWorld().getName());
-				        ps.setDouble(5, CoordTask.BedNegateAdjust(location.getX()));
-				        ps.setDouble(6, location.getY());
-				        ps.setDouble(7, CoordTask.BedNegateAdjust(location.getZ()));
-				        ps.setDouble(8, location.getPitch());
-				        ps.setDouble(9, location.getYaw());
-				        
-				        ps.executeUpdate();  
-				        resultat = ps.getGeneratedKeys();    
-				        
-				        resultat.next();  
-				        
-			        	NKhome.players.get(playerName).setBed(
-				        		resultat.getInt(1), 
+					if(homeName.equals("bed"))
+					{
+						bdd = NKhome.getInstance().getConnection();
+						req = "INSERT INTO " + NKhome.table.get("homes") + " ( player_id, server, name, world, x, y, z, pitch, yaw ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? )";				
+						ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);	   
+						ps.setInt(1, NKhome.players.get(playerName).getId());
+						ps.setString(2, NKhome.serverName);
+						ps.setString(3, homeName);
+						ps.setString(4, location.getWorld().getName());
+						ps.setDouble(5, CoordTask.BedNegateAdjust(location.getX()));
+						ps.setDouble(6, location.getY());
+						ps.setDouble(7, CoordTask.BedNegateAdjust(location.getZ()));
+						ps.setDouble(8, location.getPitch());
+						ps.setDouble(9, location.getYaw());
+						
+						ps.executeUpdate();  
+						resultat = ps.getGeneratedKeys();	
+						
+						resultat.next();  
+						
+						NKhome.players.get(playerName).setBed(
+								resultat.getInt(1), 
 								NKhome.serverName, 
 								homeName, 
 								location.getWorld().getName(),
@@ -361,28 +361,28 @@ public class NKhome extends JavaPlugin
 								CoordTask.BedNegateAdjust(location.getZ()),
 								location.getPitch(),
 								location.getYaw());
-			        }
-			        else
-			        {
-			        	bdd = NKhome.getInstance().getConnection();
-						req = "INSERT INTO " + NKhome.table.get("homes") + " ( player_id, server, name, world, x, y, z, pitch, yaw ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? )";		        
-				        ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);       
-				        ps.setInt(1, NKhome.players.get(playerName).getId());
-				        ps.setString(2, NKhome.serverName);
-				        ps.setString(3, homeName);
-				        ps.setString(4, location.getWorld().getName());
-				        ps.setDouble(5, location.getX());
-				        ps.setDouble(6, location.getY());
-				        ps.setDouble(7, location.getZ());
-				        ps.setDouble(8, location.getPitch());
-				        ps.setDouble(9, location.getYaw());
-				        
-				        ps.executeUpdate();  
-				        resultat = ps.getGeneratedKeys();    
-				        
-				        resultat.next();  
-			        	NKhome.players.get(playerName).addHome(
-				        		resultat.getInt(1), 
+					}
+					else
+					{
+						bdd = NKhome.getInstance().getConnection();
+						req = "INSERT INTO " + NKhome.table.get("homes") + " ( player_id, server, name, world, x, y, z, pitch, yaw ) VALUES ( ? , ? , ? , ? , ? , ? , ? , ? , ? )";				
+						ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);	   
+						ps.setInt(1, NKhome.players.get(playerName).getId());
+						ps.setString(2, NKhome.serverName);
+						ps.setString(3, homeName);
+						ps.setString(4, location.getWorld().getName());
+						ps.setDouble(5, location.getX());
+						ps.setDouble(6, location.getY());
+						ps.setDouble(7, location.getZ());
+						ps.setDouble(8, location.getPitch());
+						ps.setDouble(9, location.getYaw());
+						
+						ps.executeUpdate();  
+						resultat = ps.getGeneratedKeys();	
+						
+						resultat.next();  
+						NKhome.players.get(playerName).addHome(
+								resultat.getInt(1), 
 								NKhome.serverName, 
 								homeName, 
 								location.getWorld().getName(),
@@ -391,17 +391,17 @@ public class NKhome extends JavaPlugin
 								location.getZ(),
 								location.getPitch(),
 								location.getYaw());
-			        }
-			        
-			        ps.close();
-			        resultat.close();
+					}
+					
+					ps.close();
+					resultat.close();
 				}
 				catch (SQLException e) 
 				{
 					NKhome.getInstance().getConsole().sendMessage(ChatColor.DARK_RED + NKhome.PName + " Error while setting a home.");
 					e.printStackTrace();
 				}	
-		    }
+			}
 		}.runTaskAsynchronously(NKhome.getInstance());
 	}
 	
@@ -409,9 +409,9 @@ public class NKhome extends JavaPlugin
 	{
 		new BukkitRunnable() 
 		{
-		    @Override
-		    public void run() 
-		    {
+			@Override
+			public void run() 
+			{
 				Connection bdd = null;
 				PreparedStatement ps = null;
 				String req = null;
@@ -419,19 +419,19 @@ public class NKhome extends JavaPlugin
 				try
 				{
 					bdd = NKhome.getInstance().getConnection();
-					req = "DELETE FROM " + NKhome.table.get("homes") + " WHERE id = ?";		        
-			        ps = bdd.prepareStatement(req);       
-			        ps.setInt(1, homeId);
-			        ps.executeUpdate();    
+					req = "DELETE FROM " + NKhome.table.get("homes") + " WHERE id = ?";				
+					ps = bdd.prepareStatement(req);	   
+					ps.setInt(1, homeId);
+					ps.executeUpdate();	
 
-			        ps.close();
+					ps.close();
 				}
 				catch (SQLException e) 
 				{
 					NKhome.getInstance().getConsole().sendMessage(ChatColor.DARK_RED + NKhome.PName + " Error while deleting a home.");
 					e.printStackTrace();
 				}	
-		    }
+			}
 		}.runTaskAsynchronously(NKhome.getInstance());
 	}
 
@@ -457,14 +457,14 @@ public class NKhome extends JavaPlugin
 			try 
 			{
 				bdd = NKhome.getInstance().getConnection();
-	        	req = "SELECT h.id, server , h.name , world , x , y , z , pitch , yaw FROM " + NKhome.table.get("homes") + " h LEFT JOIN " + NKhome.table.get("players") + " p ON h.player_id = p.id WHERE p.name = ?";
+				req = "SELECT h.id, server , h.name , world , x , y , z , pitch , yaw FROM " + NKhome.table.get("homes") + " h LEFT JOIN " + NKhome.table.get("players") + " p ON h.player_id = p.id WHERE p.name = ?";
 				ps = bdd.prepareStatement(req);
 				ps.setString(1, playerName);
 				
 				resultat = ps.executeQuery();
 				
 				while(resultat.next()) 
-		        {
+				{
 					homes.putIfAbsent(resultat.getString("name"), new Home(cpt,
 							resultat.getInt("id"), 
 							resultat.getString("server"), 
@@ -475,7 +475,7 @@ public class NKhome extends JavaPlugin
 							resultat.getDouble("z"),
 							resultat.getFloat("pitch"),
 							resultat.getFloat("yaw")));
-		        }
+				}
 				ps.close();
 				resultat.close();
 			} 
@@ -490,7 +490,7 @@ public class NKhome extends JavaPlugin
 
 	public static void setTpHome(int playerId, int homeTp)
 	{
-    	Connection bdd = null;
+		Connection bdd = null;
 		PreparedStatement ps = null;
 		String req = null;
 		
@@ -499,12 +499,12 @@ public class NKhome extends JavaPlugin
 			bdd = NKhome.getInstance().getConnection();
 			
 			req = "UPDATE " + NKhome.table.get("players_datas") + " SET home_tp = ? WHERE player_id = ?";  
-	        ps = bdd.prepareStatement(req);
-	        ps.setInt(1, homeTp);
-	        ps.setInt(2, playerId);
-	        
-	        ps.executeUpdate();
-	        ps.close();		        
+			ps = bdd.prepareStatement(req);
+			ps.setInt(1, homeTp);
+			ps.setInt(2, playerId);
+			
+			ps.executeUpdate();
+			ps.close();				
 		}
 		catch (SQLException e) 
 		{

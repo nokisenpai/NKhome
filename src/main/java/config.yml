@@ -28,23 +28,23 @@ ranks:
 # Config structure is like :
 #convert-group:
 #  serverName1:
-#    - worldName1
-#    - worldName2
-#    - worldName3
+#	- worldName1
+#	- worldName2
+#	- worldName3
 #  serverName2:
-#    - worldName4
-#    - worldName5
-#    - worldName6
-    
+#	- worldName4
+#	- worldName5
+#	- worldName6
+	
 convert-group:
   server1:
-    - monde1
-    - monde2
-    - monde3
+	- monde1
+	- monde2
+	- monde3
   server2:
-    - monde4
-    - monde5
-    - monde6
+	- monde4
+	- monde5
+	- monde6
 
 # Used for the conversion of Essentials homes.
 # Homes from one of these worlds will be ignored
