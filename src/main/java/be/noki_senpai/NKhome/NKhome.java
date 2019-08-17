@@ -258,16 +258,18 @@ public class NKhome extends JavaPlugin
 					{
 						bdd = NKhome.getInstance().getConnection();
 						
-						req = "UPDATE " + NKhome.table.get("homes") + " SET server = ? , x = ? , y = ? , z = ? , pitch = ? , yaw = ? WHERE id = ?";  
+						req = "UPDATE " + NKhome.table.get("homes") + " SET server = ? , world = ? , x = ? , y = ? , z = ? , pitch = ? , yaw = ? WHERE id = ?";  
 						ps = bdd.prepareStatement(req);
 						ps.setString(1, NKhome.serverName);
-						ps.setDouble(2, CoordTask.BedNegateAdjust(location.getX()));
-						ps.setDouble(3, location.getY());
-						ps.setDouble(4, CoordTask.BedNegateAdjust(location.getZ()));
-						ps.setDouble(5, location.getPitch());
-						ps.setDouble(6, location.getYaw());
+						ps.setString(2, location.getWorld().getName());
+						ps.setDouble(3, CoordTask.BedNegateAdjust(location.getX()));
+						ps.setDouble(4, location.getY());
+						ps.setDouble(5, CoordTask.BedNegateAdjust(location.getZ()));
+						ps.setDouble(6, location.getPitch());
+						ps.setDouble(7, location.getYaw());
 						
 						NKhome.players.get(playerName).getBed().setServer(NKhome.serverName);
+						NKhome.players.get(playerName).getBed().setWorld(location.getWorld().getName());
 						NKhome.players.get(playerName).getBed().setX(CoordTask.BedNegateAdjust(location.getX()));
 						NKhome.players.get(playerName).getBed().setY(location.getY());
 						NKhome.players.get(playerName).getBed().setZ(CoordTask.BedNegateAdjust(location.getZ()));
@@ -280,16 +282,18 @@ public class NKhome extends JavaPlugin
 					{
 						bdd = NKhome.getInstance().getConnection();
 						
-						req = "UPDATE " + NKhome.table.get("homes") + " SET server = ? , x = ? , y = ? , z = ? , pitch = ? , yaw = ? WHERE id = ?";  
+						req = "UPDATE " + NKhome.table.get("homes") + " SET server = ? , world = ? , x = ? , y = ? , z = ? , pitch = ? , yaw = ? WHERE id = ?";  
 						ps = bdd.prepareStatement(req);
 						ps.setString(1, NKhome.serverName);
-						ps.setDouble(2, location.getX());
-						ps.setDouble(3, location.getY());
-						ps.setDouble(4, location.getZ());
-						ps.setDouble(5, location.getPitch());
-						ps.setDouble(6, location.getYaw());
+						ps.setString(2, location.getWorld().getName());
+						ps.setDouble(3, location.getX());
+						ps.setDouble(4, location.getY());
+						ps.setDouble(5, location.getZ());
+						ps.setDouble(6, location.getPitch());
+						ps.setDouble(7, location.getYaw());
 						
 						NKhome.players.get(playerName).getHomes().get(homeName).setServer(NKhome.serverName);
+						NKhome.players.get(playerName).getHomes().get(homeName).setWorld(location.getWorld().getName());
 						NKhome.players.get(playerName).getHomes().get(homeName).setX(location.getX());
 						NKhome.players.get(playerName).getHomes().get(homeName).setY(location.getY());
 						NKhome.players.get(playerName).getHomes().get(homeName).setZ(location.getZ());

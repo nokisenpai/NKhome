@@ -7,17 +7,17 @@ description: 'Allows players to have homes'
 website: www.lumen.ovh
 commands:
   home:
-  description: "Teleport to specified home"
-  usage: /<command> <home_name>
+    description: "Teleport to specified home"
+    usage: /<command> <home_name>
   sethome:
-  description: "Set a home at current location"
-  usage: /<command> <home_name>
+    description: "Set a home at current location"
+    usage: /<command> <home_name>
   delhome:
-  description: "Delete a specified home"
-  usage: /<command> <home_name>
+    description: "Delete a specified home"
+    usage: /<command> <home_name>
   homes:
-  description: "Display all home names"
-  usage: /<command> [player]
+    description: "Display all home names"
+    usage: /<command> [player]
   convertessentialshomes:
-  description: "Convert homes from Essentials plugin"
-  usage: /<command>
+    description: "Convert homes from Essentials plugin"
+    usage: /<command>
