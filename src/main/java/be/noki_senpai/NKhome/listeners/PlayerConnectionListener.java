@@ -1,5 +1,6 @@
 package be.noki_senpai.NKhome.listeners;
 
+import be.noki_senpai.NKhome.managers.HomeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,15 +14,22 @@ import be.noki_senpai.NKhome.data.NKPlayer;;
 
 public class PlayerConnectionListener implements Listener 
 {
+	private HomeManager homeManager;
+
+	public PlayerConnectionListener(HomeManager homeManager)
+	{
+		this.homeManager = homeManager;
+	}
+
 	@EventHandler
 	public void PlayerJoinEvent(final PlayerJoinEvent event) 
 	{
-		NKhome.players.putIfAbsent(event.getPlayer().getName(),new NKPlayer(event.getPlayer().getUniqueId()));
+		homeManager.addPlayer(event.getPlayer());
 	}
 
 	@EventHandler
 	public void onPlayerQuitEvent(final PlayerQuitEvent event) 
-	{	
-		NKhome.players.remove(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()).getName());
+	{
+		homeManager.delPlayer(event.getPlayer().getName());
 	}
 }

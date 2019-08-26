@@ -1,9 +1,12 @@
 package be.noki_senpai.NKhome.cmd;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import be.noki_senpai.NKhome.managers.ConfigManager;
+import be.noki_senpai.NKhome.managers.HomeManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandExecutor;
@@ -22,13 +25,21 @@ import be.noki_senpai.NKhome.utils.CoordTask;
 
 public class HomeCmd implements CommandExecutor
 {
-	@Override
-	public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) 
+	private HomeManager homeManager = null;
+
+	public HomeCmd(HomeManager homeManager)
 	{
+		this.homeManager = homeManager;
+	}
+
+	@Override public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args)
+	{
+		String playerName = null;
+		String homeName = null;
 		// Command called by a player
-		if (sender instanceof Player) 
+		if(sender instanceof Player)
 		{
-			if(!(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.home") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin")))
+			if(!hasHomePermissions(sender))
 			{
 				// Send that the player does not have the permission
 				sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission !");
@@ -38,66 +49,42 @@ public class HomeCmd implements CommandExecutor
 			{
 				Home home = null;
 				boolean admin = false;
-				
+
 				//if no argument
 				if(args.length == 0)
 				{
-					List<Home> homeList = new ArrayList<Home>(NKhome.players.get(sender.getName()).getHomes().values());
+					// Get the name of the first player's home
+					List<Home> homeList = new ArrayList<Home>(homeManager.getHomes(sender.getName()).values());
 					if(homeList.size() != 0)
 					{
-						home = homeList.get(0);
+						playerName = sender.getName();
+						homeName = homeList.get(0).getName();
+					}
+					else
+					{
+						sender.sendMessage(ChatColor.RED + " Vous n'avez pas de home");
+						return true;
 					}
 				}
 				else
 				{
 					args[0] = args[0].toLowerCase();
-					
-					if(!CheckType.isAlphaNumeric(args[0]))
+
+					if(!CheckType.isAlphaNumeric(args[0]) && args[0].contains(":"))
 					{
-						if(args[0].contains(":") && (sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.home.other") || sender.hasPermission("nkhome.admin")))
+						if(hasHomeOtherPermissions(sender))
 						{
 							String[] homeArgs = args[0].split(":");
 							if(homeArgs.length >= 2)
 							{
-								if(NKhome.players.containsKey(homeArgs[0]))
-								{
-									if(NKhome.players.get(homeArgs[0]).getHomes().containsKey(homeArgs[1]))
-									{
-										home = NKhome.players.get(homeArgs[0]).getHomes().get(homeArgs[1]);
-									}
-									
-									else if(homeArgs[1].equals("bed"))
-									{
-										home = NKhome.players.get(homeArgs[0]).getBed();
-										admin= true;
-									}
-									
-									else if(CheckType.isNumber(homeArgs[1]))
-									{
-										List<Home> homeList = new ArrayList<Home>(NKhome.players.get(homeArgs[0]).getHomes().values());
-										if(homeList.size() >= Integer.parseInt(homeArgs[1]))
-										{
-											home = homeList.get(Integer.parseInt(homeArgs[1])-1);
-										}
-									}
-								}
-								else
-								{
-									LinkedHashMap<String, Home> playerHomes = NKhome.getPlayerHomes(homeArgs[0]);
-									if(playerHomes.containsKey(homeArgs[1]))
-									{
-										home = playerHomes.get(homeArgs[1]);
-									}
-									
-									else if(CheckType.isNumber(homeArgs[1]))
-									{
-										List<Home> homeList = new ArrayList<Home>(playerHomes.values());
-										if(homeList.size() >= Integer.parseInt(homeArgs[1]))
-										{
-											home = homeList.get(Integer.parseInt(homeArgs[1])-1);
-										}
-									}
-								}
+								playerName = homeArgs[0];
+								homeName = homeArgs[1];
+								admin = true;
+							}
+							else
+							{
+								sender.sendMessage(ChatColor.RED + " VÃ©rifiez la syntaxe de la commande.");
+								return true;
 							}
 						}
 						else
@@ -106,109 +93,119 @@ public class HomeCmd implements CommandExecutor
 							return true;
 						}
 					}
-					
-					else if(NKhome.players.get(sender.getName()).getHomes().containsKey(args[0]))
+					else
 					{
-						home = NKhome.players.get(sender.getName()).getHomes().get(args[0]);
-					}
-					
-					else if(args[0].equals("bed"))
-					{
-						home = NKhome.players.get(sender.getName()).getBed();
-					}
-					
-					else if(CheckType.isNumber(args[0]))
-					{
-						List<Home> homeList = new ArrayList<Home>(NKhome.players.get(sender.getName()).getHomes().values());
-						if(homeList.size() >= Integer.parseInt(args[0]))
-						{
-							home = homeList.get(Integer.parseInt(args[0])-1);
-						}
+						playerName = sender.getName();
+						homeName = args[0];
 					}
 				}
-				
-				
-				
-				
-				if(home==null)
+
+				// Get target home
+				home = homeManager.getHome(playerName, homeName);
+
+				if(home == null)
 				{
 					sender.sendMessage(ChatColor.RED + " Ce home n'existe pas.");
 					return true;
 				}
-				else
-				{
-					if(home.getServer().equals(NKhome.serverName))
-					{
-						if(home.getName().equals("bed") && !(NKhome.getInstance().getServer().getWorld(home.getWorld()).getBlockAt(CoordTask.BlockCoord(home.getX()), (int)home.getY(), CoordTask.BlockCoord(home.getZ())).getBlockData() instanceof org.bukkit.block.data.type.Bed))
-						{
-							if(admin)
-							{
-								sender.sendMessage(ChatColor.RED + " Le lit de ce joueur n'existe plus.");
-							}
-							else
-							{
-								sender.sendMessage(ChatColor.RED + " Votre lit n'existe plus.");
-								NKhome.players.get(sender.getName()).delBed();
-								NKhome.delHome(home.getId());
-							}
-						}
-						else
-						{
-							Location safeLocation = null;
-							String worldName = home.getWorld();
-							double x = CoordTask.roundFive(home.getX());
-							double y = home.getY();
-							double z = CoordTask.roundFive(home.getZ());
-							float yaw = home.getYaw();
-							float pitch = home.getPitch();
-							
 
-							if(home.getName().equals("bed"))
-							{
-								safeLocation = NKhome.safeBedLocation(worldName, x, y, z, yaw, pitch);
-							}
-							else
-							{
-								safeLocation = NKhome.safeLocation(worldName, x, y, z, yaw, pitch);
-							}
-							
-							if(safeLocation == null)
-							{
-								sender.sendMessage(ChatColor.RED + "Ce home est obstrué. Par sécurité vous n'avez pas été téléporté.");
-							}
-							else
-							{
-								((Player) sender).teleport(safeLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-							}
-						}
-						return true;
+				// If home is not on this server
+				if(!home.getServer().equals(ConfigManager.SERVERNAME))
+				{
+					homeManager.getPlayer(sender.getName()).setTpHome(home.getId());
+
+					ByteArrayDataOutput out = ByteStreams.newDataOutput();
+					out.writeUTF("Connect");
+					out.writeUTF(home.getServer());
+
+					// synchrone
+					// synchrone
+					// synchrone
+					// synchrone
+					// synchrone
+					((Player) sender).sendPluginMessage(NKhome.getPlugin(), "BungeeCord", out.toByteArray());
+
+					return true;
+				}
+
+				if(home.getName().equals("bed")
+						&& !(Bukkit.getServer().getWorld(home.getWorld()).getBlockAt(CoordTask.BlockCoord(home.getX()), (int) home.getY(), CoordTask.BlockCoord(home.getZ())).getBlockData() instanceof org.bukkit.block.data.type.Bed))
+				{
+					if(admin)
+					{
+						sender.sendMessage(ChatColor.RED + " Le lit de ce joueur n'existe plus.");
 					}
 					else
 					{
-						NKhome.setTpHome(NKhome.players.get(sender.getName()).getId(), home.getId());
-
-						ByteArrayDataOutput out = ByteStreams.newDataOutput();
-						out.writeUTF("Connect");
-						out.writeUTF(home.getServer());
-
-						((Player) sender).sendPluginMessage(NKhome.getInstance(), "BungeeCord", out.toByteArray());
-						
-						return true;
+						sender.sendMessage(ChatColor.RED + " Votre lit n'existe plus.");
+						homeManager.delHome(sender.getName(), home.getName());
 					}
 				}
-				
+				else
+				{
+					Location safeLocation = null;
+					String worldName = home.getWorld();
+					double x = CoordTask.roundFive(home.getX());
+					double y = home.getY();
+					double z = CoordTask.roundFive(home.getZ());
+					float yaw = home.getYaw();
+					float pitch = home.getPitch();
+
+					if(home.getName().equals("bed"))
+					{
+						safeLocation = CoordTask.safeBedLocation(worldName, x, y, z, yaw, pitch);
+					}
+					else
+					{
+						safeLocation = CoordTask.safeLocation(worldName, x, y, z, yaw, pitch);
+					}
+
+					if(safeLocation == null)
+					{
+						sender.sendMessage(ChatColor.RED + "Ce home est obstruÃ©. Par sÃ©curitÃ© vous n'avez pas Ã©tÃ© tÃ©lÃ©portÃ©.");
+					}
+					else
+					{
+						((Player) sender).teleport(safeLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+					}
+				}
+				return true;
 			}
 		}
-		
-		
+
 		// Command called by Console
-		if (sender instanceof ConsoleCommandSender)
+		if(sender instanceof ConsoleCommandSender)
 		{
 			sender.sendMessage(ChatColor.RED + " Vous ne pouvez pas utiliser cette commande dans la console.");
 			return true;
 		}
-		
-		
+
 		return true;
+	}
+
+	private boolean hasHomePermissions(CommandSender sender)
+	{
+		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.home") || sender.hasPermission("nkhome.user")
+				|| sender.hasPermission("nkhome.admin"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	private boolean hasHomeOtherPermissions(CommandSender sender)
+	{
+		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.home.other")
+				|| sender.hasPermission("nkhome.admin"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
