@@ -1,7 +1,11 @@
 package be.noki_senpai.NKhome.cmd;
 
+import java.util.Map;
 import java.util.Map.Entry;
 
+import be.noki_senpai.NKhome.data.NKPlayer;
+import be.noki_senpai.NKhome.managers.ConfigManager;
+import be.noki_senpai.NKhome.managers.HomeManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,7 +17,15 @@ import be.noki_senpai.NKhome.data.Home;
 
 public class HomesCmd implements CommandExecutor
 {
-	
+	private HomeManager homeManager = null;
+	private ConfigManager configManager = null;
+
+	public HomesCmd(HomeManager homeManager, ConfigManager configManager)
+	{
+		this.homeManager = homeManager;
+		this.configManager = configManager;
+	}
+
 	@Override
 	public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) 
 	{	
@@ -21,7 +33,7 @@ public class HomesCmd implements CommandExecutor
 		// Command called by a player
 		if (sender instanceof Player) 
 		{
-			if(!(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.homes") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin")))
+			if(!hasHomesPermissions(sender))
 			{
 				// Send that the player does not have the permission
 				sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission !");
@@ -30,56 +42,58 @@ public class HomesCmd implements CommandExecutor
 			else
 			{
 				String homeList = ChatColor.GREEN + "---- Liste des homes de ";
-				//if no argument
+				String tmpHomes = "";
+				String playerName = null;
+
+				//if no argument - display sender homes
 				if(args.length == 0)
 				{
-					homeList += sender.getName() + " (" + NKhome.players.get(sender.getName()).getCpt() + "/";
+					playerName = sender.getName();
+					NKPlayer player = homeManager.getPlayer(playerName);
+					homeList += playerName + " (" + player.getCpt() + "/";
 					
-					if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.rank.*"))
-					{
-						maxHome = 100;
-					}
-					else
-					{
-						for (Entry<String, Integer> entry : NKhome.ranks.entrySet()) 
-						{
-							if(sender.hasPermission("nkhome.rank." + entry.getKey()) && entry.getValue() > maxHome)
-							{
-								maxHome = entry.getValue();
-							}
-						}
-					}
-					maxHome += NKhome.players.get(sender.getName()).getHomeBonus();
+					maxHome = getMaxHome(sender);
+					maxHome += player.getHomeBonus();
 					
 					homeList += maxHome + ") ----";
-					
-					for (Entry<String, Home> entry : NKhome.players.get(sender.getName()).getHomes().entrySet()) 
+					int cpt = 1;
+					for (Entry<String, Home> entry : homeManager.getHomes(playerName).entrySet())
 					{
+						if(entry.getValue().getName().equals("bed"))
+						{
+							tmpHomes += "\n" + ChatColor.GREEN + "~ bed - " + ChatColor.AQUA + entry.getValue().getServer()
+									+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
+							continue;
+						}
 						if(entry.getValue().getCpt() > maxHome)
 						{
-							homeList += "\n" + ChatColor.GREEN + ChatColor.STRIKETHROUGH + entry.getValue().getCpt() + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer() 
+							tmpHomes += "\n" + ChatColor.GREEN + ChatColor.STRIKETHROUGH + cpt + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer()
 									+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]"
 									+ ChatColor.RESET;
+							cpt++;
 						}
 						else
 						{
-							homeList += "\n" + ChatColor.GREEN + entry.getValue().getCpt() + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer() 
+							tmpHomes += "\n" + ChatColor.GREEN + cpt + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer()
 									+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
+							cpt++;
 						}
-						
 					}
-					Home bed = NKhome.players.get(sender.getName()).getBed();
-					if(bed!=null)
+					if(tmpHomes.equals(""))
 					{
-						homeList += "\n" + ChatColor.GREEN + "~ bed - " + ChatColor.AQUA + bed.getServer() 
-						+ " [" + bed.getWorld() + "] [ " + (int)bed.getX() + " / " + (int)bed.getY() + " / " + (int)bed.getZ() + " ]";
+						sender.sendMessage(ChatColor.RED + " Vous n'avez pas de home.");
+						return true;
 					}
-					sender.sendMessage(homeList);
-					return true;
+					else
+					{
+						sender.sendMessage(homeList + tmpHomes);
+						return true;
+					}
 				}
+				// Sender want display homes from other player
 				else
 				{
-					if(!(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.homes.other") || sender.hasPermission("nkhome.admin")))
+					if(!(hasHomesOtherPermissions(sender)))
 					{
 						// Send that the player does not have the permission
 						sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission !");
@@ -88,31 +102,30 @@ public class HomesCmd implements CommandExecutor
 					else
 					{
 						homeList += args[0] + " ----";
-						String bed = "";
-						int i = 1;
-						for (Entry<String, Home> entry : NKhome.getPlayerHomes(args[0]).entrySet()) 
+						int cpt = 1;
+						for (Entry<String, Home> entry : homeManager.getHomes(args[0]).entrySet())
 						{
 							if(!entry.getKey().equals("bed"))
 							{
-								homeList += "\n" + ChatColor.GREEN + i + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer() 
+								tmpHomes += "\n" + ChatColor.GREEN + cpt + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer()
 										+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
-								i++;
+								cpt++;
 							}
 							else
 							{
-								bed = "\n" + ChatColor.GREEN + "~ bed - " + ChatColor.AQUA + entry.getValue().getServer() 
+								tmpHomes += "\n" + ChatColor.GREEN + "~ bed - " + ChatColor.AQUA + entry.getValue().getServer()
 										+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
 							}
 						}
-						if(i==1 && bed.equals(""))
+
+						if(tmpHomes.equals(""))
 						{
 							sender.sendMessage(ChatColor.RED + " Ce joueur n'a pas de home.");
 							return true;
 						}
 						else
 						{
-							homeList += bed;
-							sender.sendMessage(homeList);
+							sender.sendMessage(homeList + tmpHomes);
 							return true;
 						}
 					}
@@ -128,37 +141,37 @@ public class HomesCmd implements CommandExecutor
 			//if no argument
 			if(args.length == 0)
 			{
-				sender.sendMessage(ChatColor.RED + " Vous devez specifier le nom d'un joueur.");
+				sender.sendMessage(ChatColor.RED + " Vous devez spécifier le nom d'un joueur.");
 				return true;
 			}
 			else
 			{
+				String tmpHomes = null;
 				homeList += args[0] + " ----";
-				String bed = "";
-				int i = 1;
-				for (Entry<String, Home> entry : NKhome.getPlayerHomes(args[0]).entrySet()) 
+				int cpt = 1;
+				for (Entry<String, Home> entry : homeManager.getHomes(args[0]).entrySet())
 				{
 					if(!entry.getKey().equals("bed"))
 					{
-						homeList += "\n" + ChatColor.GREEN + i + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer() 
+						tmpHomes += "\n" + ChatColor.GREEN + cpt + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer()
 								+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
-						i++;
+						cpt++;
 					}
 					else
 					{
-						bed = "\n" + ChatColor.GREEN + "~ bed - " + ChatColor.AQUA + entry.getValue().getServer() 
+						tmpHomes += "\n" + ChatColor.GREEN + "~ bed - " + ChatColor.AQUA + entry.getValue().getServer()
 								+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
 					}
 				}
-				if(i==1 && bed.equals(""))
+
+				if(tmpHomes == null)
 				{
 					sender.sendMessage(ChatColor.RED + " Ce joueur n'a pas de home.");
 					return true;
 				}
 				else
 				{
-					homeList += bed;
-					sender.sendMessage(homeList);
+					sender.sendMessage(homeList + tmpHomes);
 					return true;
 				}
 			}
@@ -166,5 +179,62 @@ public class HomesCmd implements CommandExecutor
 		
 		
 		return true;
+	}
+
+	// Get the max home that this player can have
+	private int getMaxHome(CommandSender sender)
+	{
+		int maxHome = 0;
+		if(hasAdminRankPermissions(sender))
+		{
+			maxHome = 100;
+		}
+		else
+		{
+			for (Entry<String, Integer> entry : configManager.getRanks().entrySet())
+			{
+				if(sender.hasPermission("nkhome.rank." + entry.getKey()) && entry.getValue() > maxHome)
+				{
+					maxHome = entry.getValue();
+				}
+			}
+		}
+		return maxHome;
+	}
+
+	private boolean hasHomesPermissions(CommandSender sender)
+	{
+		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.homes") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	private boolean hasHomesOtherPermissions(CommandSender sender)
+	{
+		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.homes.other") || sender.hasPermission("nkhome.admin"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	private boolean hasAdminRankPermissions(CommandSender sender)
+	{
+		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.rank.*"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

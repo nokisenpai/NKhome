@@ -1,7 +1,11 @@
 package be.noki_senpai.NKhome.listeners;
 
+import be.noki_senpai.NKhome.managers.ConfigManager;
+import be.noki_senpai.NKhome.managers.HomeManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,55 +13,90 @@ import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerBedEnterEvent.BedEnterResult;
 
 import be.noki_senpai.NKhome.NKhome;
-import be.noki_senpai.NKhome.data.Home;;
+import be.noki_senpai.NKhome.data.Home;
 
-
-
-public class PlayerBedEnter implements Listener 
+public class PlayerBedEnter implements Listener
 {
+	private HomeManager homeManager;
+
+	public PlayerBedEnter(HomeManager homeManager)
+	{
+		this.homeManager = homeManager;
+	}
+
 	@EventHandler
-	public void onPlayerBedEnter(final PlayerBedEnterEvent event) 
+	public void onPlayerBedEnter(final PlayerBedEnterEvent event)
 	{
 		Player player = event.getPlayer();
-		if(player.hasPermission("*") || player.hasPermission("nkhome.*") || player.hasPermission("nkhome.bed") || player.hasPermission("nkhome.user") || player.hasPermission("nkhome.admin"))
+		if(hasSetBedHomePermissions(player))
 		{
+			// Check if player success enter in his bed (night or storm)
 			if(event.getBedEnterResult() == BedEnterResult.OK)
 			{
 				String playerName = player.getName();
-				Home homeBed = NKhome.players.get(playerName).getBed();
+				Home oldBedHome = homeManager.getPlayer(playerName).getBed();
 				Location bedLocation = event.getBed().getLocation();
-		
-				if(homeBed != null)
+
+				// If player has already a bed home
+				if(oldBedHome != null)
 				{
-					if( homeBed.getX() != bedLocation.getX() || 
-						homeBed.getY() != bedLocation.getY() || 
-						homeBed.getZ() != bedLocation.getZ() || 
-						!(homeBed.getWorld().equals(bedLocation.getWorld().getName()))) 
+					// Check if new bed home is different than old bed home
+					if(isDifferendBed(oldBedHome, bedLocation))
 					{
-						if(homeBed.getServer().equals(NKhome.serverName))
+						// Check if old bed home is on the same server
+						if(oldBedHome.getServer().equals(ConfigManager.SERVERNAME))
 						{
-							if(!(NKhome.getInstance().getServer().getWorld(homeBed.getWorld()).getBlockAt((int)homeBed.getX(), (int)homeBed.getY(), (int)homeBed.getZ()).getBlockData() instanceof org.bukkit.block.data.type.Bed))
+							// Check if bed has been broken
+							if(!(homeManager.isBedBlock(oldBedHome)))
 							{
-								NKhome.updateHome(playerName, "bed", bedLocation);
-								event.getPlayer().sendMessage(ChatColor.GREEN + " Votre home 'bed' a été mis à jour.");
+								homeManager.updateHome(playerName, "bed", bedLocation);
+								event.getPlayer().sendMessage(ChatColor.GREEN + " Votre home 'bed' a Ã©tÃ© mis Ã  jour.");
 							}
+							// No else.
 						}
 						else
 						{
-							event.getPlayer().sendMessage(ChatColor.RED + " Vous possédez déjà un home 'bed' sur le serveur '" + homeBed.getServer() + "'");
+							// We don't update bed home. If player still want update his bed home he needs to break his bed on the other world or use "/delhome bed" command before
+							event.getPlayer().sendMessage(ChatColor.RED + " Vous possÃ©dez dÃ©jÃ  un home 'bed' sur le serveur '" + oldBedHome.getServer()
+									+ "'");
 						}
 					}
-					/*else
-					{
-						event.getPlayer().sendMessage(ChatColor.GREEN + " Il ne s'est rien passé.");
-					}*/
+					// No else.
+					/*
+					 * else { event.getPlayer().sendMessage(ChatColor.GREEN +
+					 * " Il ne s'est rien passï¿½."); }
+					 */
 				}
 				else
 				{
-					NKhome.setHome(playerName, "bed", bedLocation);
-					event.getPlayer().sendMessage(ChatColor.GREEN + " Votre home 'bed' a été créé.");
+					homeManager.addHome(playerName, "bed", bedLocation);
+					event.getPlayer().sendMessage(ChatColor.GREEN + " Votre home 'bed' a Ã©tÃ© crÃ©Ã©.");
 				}
 			}
+		}
+	}
+
+	// Check if new bed location is different than old bed location
+	private boolean isDifferendBed(Home homeBed, Location bedLocation)
+	{
+		if(homeBed.getX() != bedLocation.getX() || homeBed.getY() != bedLocation.getY() || homeBed.getZ() != bedLocation.getZ()
+				|| !(homeBed.getWorld().equals(bedLocation.getWorld().getName())))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	private boolean hasSetBedHomePermissions(Player player)
+	{
+		if(player.hasPermission("*") || player.hasPermission("nkhome.*") || player.hasPermission("nkhome.bed") || player.hasPermission("nkhome.user")
+				|| player.hasPermission("nkhome.admin"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 }

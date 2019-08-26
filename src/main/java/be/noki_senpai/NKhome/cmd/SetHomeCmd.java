@@ -2,6 +2,9 @@ package be.noki_senpai.NKhome.cmd;
 
 import java.util.Map.Entry;
 
+import be.noki_senpai.NKhome.data.NKPlayer;
+import be.noki_senpai.NKhome.managers.ConfigManager;
+import be.noki_senpai.NKhome.managers.HomeManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,7 +16,15 @@ import be.noki_senpai.NKhome.utils.CheckType;
 
 public class SetHomeCmd implements CommandExecutor
 {
-	
+	private HomeManager homeManager = null;
+	private ConfigManager configManager = null;
+
+	public SetHomeCmd(HomeManager homeManager, ConfigManager configManager)
+	{
+		this.homeManager = homeManager;
+		this.configManager = configManager;
+	}
+
 	@Override
 	public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) 
 	{
@@ -21,7 +32,8 @@ public class SetHomeCmd implements CommandExecutor
 		// Command called by a player
 		if (sender instanceof Player) 
 		{
-			if(!(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.sethome") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin")))
+
+			if(!hasSetHomePermissions(sender))
 			{
 				// Send that the player does not have the permission
 				sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission !");
@@ -32,44 +44,32 @@ public class SetHomeCmd implements CommandExecutor
 				//if no argument
 				if(args.length == 0)
 				{
-					sender.sendMessage(ChatColor.RED + " Vous devez spécifier un nom de home.");
+					sender.sendMessage(ChatColor.RED + " Vous devez spÃ©cifier un nom de home.");
 					return true;
 				}
-				
+
+				NKPlayer player = homeManager.getPlayer(sender.getName());
 				args[0] = args[0].toLowerCase();
-				
+
 				// Check valid home name
 				if(!CheckType.isAlphaNumeric(args[0]) || args[0].equals("bed") || CheckType.isNumber(args[0]))
 				{
 					sender.sendMessage(ChatColor.RED + " '" + args[0] + "' n'est pas un nom de home valide.");
 					return true;
 				}
-				
-				if(NKhome.players.get(sender.getName()).getHomes().containsKey(args[0]))
+
+				if(player.getHomes().containsKey(args[0]))
 				{
-					NKhome.updateHome(sender.getName(), args[0], ((Player) sender).getLocation());
-					sender.sendMessage(ChatColor.GREEN + " Votre home '" + args[0] + "' a été mis à jour.");
+					homeManager.updateHome(sender.getName(), args[0], ((Player) sender).getLocation());
+					sender.sendMessage(ChatColor.GREEN + " Votre home '" + args[0] + "' a Ã©tÃ© mis Ã  jour.");
 					return true;
 				}
+
+				maxHome = getMaxHome(sender);
+
+				maxHome += player.getHomeBonus();
 				
-				if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.rank.*"))
-				{
-					maxHome = 100;
-				}
-				else
-				{
-					for (Entry<String, Integer> entry : NKhome.ranks.entrySet()) 
-					{
-						if(sender.hasPermission("nkhome.rank." + entry.getKey()) && entry.getValue() > maxHome)
-						{
-							maxHome = entry.getValue();
-						}
-					}
-				}
-				
-				maxHome += NKhome.players.get(sender.getName()).getHomeBonus();
-				
-				if(maxHome <= NKhome.players.get(sender.getName()).getCpt())
+				if(maxHome <= player.getCpt())
 				{
 					sender.sendMessage(ChatColor.RED + " Vous ne pouvez pas faire plus de " + ChatColor.BOLD + maxHome + ChatColor.RESET + ChatColor.RED + " home(s).");
 					return true;
@@ -77,8 +77,8 @@ public class SetHomeCmd implements CommandExecutor
 				}
 				else
 				{
-					NKhome.setHome(sender.getName(), args[0], ((Player) sender).getLocation());
-					sender.sendMessage(ChatColor.GREEN + " Votre home '" + args[0] + "' a été créé.");
+					homeManager.addHome(sender.getName(), args[0], ((Player) sender).getLocation());
+					sender.sendMessage(ChatColor.GREEN + " Votre home '" + args[0] + "' a Ã©tÃ© crÃ©Ã©.");
 					return true;
 				}
 			}
@@ -96,4 +96,48 @@ public class SetHomeCmd implements CommandExecutor
 		return true;
 	}
 
+	// Get the max home that this player can have
+	private int getMaxHome(CommandSender sender)
+	{
+		int maxHome = 0;
+		if(hasAdminRankPermissions(sender))
+		{
+			maxHome = 100;
+		}
+		else
+		{
+			for (Entry<String, Integer> entry : configManager.getRanks().entrySet())
+			{
+				if(sender.hasPermission("nkhome.rank." + entry.getKey()) && entry.getValue() > maxHome)
+				{
+					maxHome = entry.getValue();
+				}
+			}
+		}
+		return maxHome;
+	}
+
+	private boolean hasSetHomePermissions(CommandSender sender)
+	{
+		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.sethome") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	private boolean hasAdminRankPermissions(CommandSender sender)
+	{
+		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.rank.*"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

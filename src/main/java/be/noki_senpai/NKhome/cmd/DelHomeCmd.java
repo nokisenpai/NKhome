@@ -1,9 +1,10 @@
 package be.noki_senpai.NKhome.cmd;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import be.noki_senpai.NKhome.managers.HomeManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,14 +17,22 @@ import be.noki_senpai.NKhome.utils.CheckType;
 
 public class DelHomeCmd implements CommandExecutor
 {
-	@Override
-	public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) 
+	private HomeManager homeManager = null;
+
+	public DelHomeCmd(HomeManager homeManager)
+	{
+		this.homeManager = homeManager;
+	}
+
+	@Override public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args)
 	{
 		// Command called by a player
-		if (sender instanceof Player) 
+		if(sender instanceof Player)
 		{
-			Home homeDel = null;
-			if(!(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.delhome") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin")))
+			String playerName = null;
+			String homeName = null;
+			Home home = null;
+			if(!hasDelHomePermissions(sender))
 			{
 				// Send that the player does not have the permission
 				sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission !");
@@ -34,113 +43,85 @@ public class DelHomeCmd implements CommandExecutor
 				//if no argument
 				if(args.length == 0)
 				{
-					sender.sendMessage(ChatColor.RED + " Vous devez spécifier un nom de home.");
+					sender.sendMessage(ChatColor.RED + " Vous devez spÃ©cifier un nom de home.");
 					return true;
 				}
-				else
+
+				args[0] = args[0].toLowerCase();
+
+				if(!CheckType.isAlphaNumeric(args[0]) && args[0].contains(":"))
 				{
-					args[0] = args[0].toLowerCase();
-					
-					if(!CheckType.isAlphaNumeric(args[0]))
+					if(hasDelHomeOtherPermissions(sender))
 					{
-						if(args[0].contains(":") && (sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.delhome.other") || sender.hasPermission("nkhome.admin")))
+						String[] homeArgs = args[0].split(":");
+						if(homeArgs.length >= 2)
 						{
-							String[] homeArgs = args[0].split(":");
-							if(homeArgs.length >= 2)
-							{
-								if(NKhome.players.containsKey(homeArgs[0]))
-								{
-									if(NKhome.players.get(homeArgs[0]).getHomes().containsKey(homeArgs[1]))
-									{
-										homeDel = NKhome.players.get(homeArgs[0]).getHomes().get(homeArgs[1]);
-										NKhome.players.get(homeArgs[0]).removeHome(homeArgs[1]);
-									}
-									
-									else if(homeArgs[1].equals("bed"))
-									{
-										homeDel = NKhome.players.get(homeArgs[0]).getBed();
-										NKhome.players.get(homeArgs[0]).delBed();
-									}
-									
-									else if(CheckType.isNumber(homeArgs[1]))
-									{
-										List<Home> homeList = new ArrayList<Home>(NKhome.players.get(homeArgs[0]).getHomes().values());
-										if(homeList.size() >= Integer.parseInt(homeArgs[1]))
-										{
-											homeDel = homeList.get(Integer.parseInt(homeArgs[1])-1);
-											NKhome.players.get(homeArgs[0]).removeHome(homeList.get(Integer.parseInt(homeArgs[1])-1).getName());
-										}
-									}
-								}
-								else
-								{
-									LinkedHashMap<String, Home> playerHomes = NKhome.getPlayerHomes(homeArgs[0]);
-									if(playerHomes.containsKey(homeArgs[1]))
-									{
-										homeDel = playerHomes.get(homeArgs[1]);
-									}
-									
-									else if(CheckType.isNumber(homeArgs[1]))
-									{
-										List<Home> homeList = new ArrayList<Home>(playerHomes.values());
-										if(homeList.size() >= Integer.parseInt(homeArgs[1]))
-										{
-											homeDel = homeList.get(Integer.parseInt(homeArgs[1])-1);
-										}
-									}
-								}
-							}
+							playerName = homeArgs[0];
+							homeName = homeArgs[1];
 						}
 						else
 						{
-							sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission de vous tp au home d'un autre joueur !");
+							sender.sendMessage(ChatColor.RED + " VÃ©rifiez la syntaxe de la commande.");
 							return true;
 						}
 					}
-					
-					else if(NKhome.players.get(sender.getName()).getHomes().containsKey(args[0]))
+					else
 					{
-						homeDel = NKhome.players.get(sender.getName()).getHomes().get(args[0]);
-						NKhome.players.get(sender.getName()).removeHome(args[0]);
-					}
-					
-					else if(args[0].equals("bed"))
-					{
-						homeDel = NKhome.players.get(sender.getName()).getBed();
-						NKhome.players.get(sender.getName()).delBed();
-					}
-					
-					else if(CheckType.isNumber(args[0]))
-					{
-						List<Home> homeList = new ArrayList<Home>(NKhome.players.get(sender.getName()).getHomes().values());
-						if(homeList.size() >= Integer.parseInt(args[0]))
-						{
-							NKhome.players.get(sender.getName()).removeHome(homeList.get(Integer.parseInt(args[0])-1).getName());
-							homeDel = homeList.get(Integer.parseInt(args[0])-1);
-						}
+						sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission de supprimer le home d'un autre joueur !");
+						return true;
 					}
 				}
-				if(homeDel == null)
+				else
+				{
+					playerName = sender.getName();
+					homeName = args[0];
+				}
+				home = homeManager.getHome(playerName, homeName);
+				if(home == null)
 				{
 					sender.sendMessage(ChatColor.RED + " Ce home n'existe pas.");
 				}
 				else
 				{
-					sender.sendMessage(ChatColor.GREEN + " Votre home '" + homeDel.getName() + "' a été supprimé.");
-					NKhome.delHome(homeDel.getId());
+					homeManager.delHome(playerName, home.getName());
+					sender.sendMessage(ChatColor.GREEN + " Votre home '" + home.getName() + "' a Ã©tÃ© supprimÃ©.");
 				}
 			}
 		}
-		
-		
+
 		// Command called by Console
-		if (sender instanceof ConsoleCommandSender)
+		if(sender instanceof ConsoleCommandSender)
 		{
 			sender.sendMessage(ChatColor.RED + " Vous ne pouvez pas utiliser cette commande dans la console.");
 			return true;
 		}
-		
-		
+
 		return true;
+	}
+
+	private boolean hasDelHomePermissions(CommandSender sender)
+	{
+		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.delhome")
+				|| sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	private boolean hasDelHomeOtherPermissions(CommandSender sender)
+	{
+		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.delhome.other")
+				|| sender.hasPermission("nkhome.admin"))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
