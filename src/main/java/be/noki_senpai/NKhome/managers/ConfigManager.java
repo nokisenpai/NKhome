@@ -66,7 +66,7 @@ public class ConfigManager
 
 		for(String key : rankSection.getKeys(false))
 		{
-			ranks.putIfAbsent(key, config.getInt("ranks." + key));
+			ranks.put(key, config.getInt("ranks." + key));
 		}
 
 		if(ranks.size() == 0)
@@ -81,7 +81,7 @@ public class ConfigManager
 		{
 			for(String world : config.getStringList("convert-group." + server))
 			{
-				convertGroup.putIfAbsent(world, server);
+				convertGroup.put(world, server);
 			}
 		}
 

@@ -286,7 +286,7 @@ public class NKPlayer
 	public void addHome(int id, String server, String name, String world, double x, double y, double z, float pitch, float yaw)
 	{
 		cpt++;
-		this.homes.putIfAbsent(name, new Home(cpt, id, server, name, world, x, y, z, pitch, yaw));
+		this.homes.put(name, new Home(cpt, id, server, name, world, x, y, z, pitch, yaw));
 
 	}
 

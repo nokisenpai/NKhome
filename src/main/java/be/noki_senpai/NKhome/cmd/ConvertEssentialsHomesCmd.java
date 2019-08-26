@@ -100,7 +100,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 
 						while(resultat.next())
 						{
-							playerList.putIfAbsent(resultat.getString("uuid"), resultat.getInt("id"));
+							playerList.put(resultat.getString("uuid"), resultat.getInt("id"));
 						}
 						ps.close();
 						resultat.close();
@@ -226,7 +226,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 										float pitch = (float) configHome.getDouble("pitch");
 										float yaw = (float) configHome.getDouble("yaw");
 
-										homes.putIfAbsent(key, new Home(-1, -1, server, name, world, x, y, z, pitch, yaw));
+										homes.put(key, new Home(-1, -1, server, name, world, x, y, z, pitch, yaw));
 									}
 								}
 							}
@@ -331,7 +331,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 											float pitch = 0;
 											float yaw = 0;
 
-											homes.putIfAbsent(name, new Home(-1, -1, server, name, world, x, y, z, pitch, yaw));
+											homes.put(name, new Home(-1, -1, server, name, world, x, y, z, pitch, yaw));
 										}
 									}
 								}
