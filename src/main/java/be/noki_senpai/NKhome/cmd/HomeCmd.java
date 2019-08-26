@@ -185,27 +185,13 @@ public class HomeCmd implements CommandExecutor
 
 	private boolean hasHomePermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.home") || sender.hasPermission("nkhome.user")
-				|| sender.hasPermission("nkhome.admin"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.home") || sender.hasPermission("nkhome.user")
+				|| sender.hasPermission("nkhome.admin");
 	}
 
 	private boolean hasHomeOtherPermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.home.other")
-				|| sender.hasPermission("nkhome.admin"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.home.other")
+				|| sender.hasPermission("nkhome.admin");
 	}
 }

@@ -396,14 +396,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 
 	public boolean hasConvertEssentialsHomesPermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.convert")
-				|| sender.hasPermission("nkhome.admin"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.convert")
+				|| sender.hasPermission("nkhome.admin");
 	}
 }

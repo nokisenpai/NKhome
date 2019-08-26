@@ -204,37 +204,16 @@ public class HomesCmd implements CommandExecutor
 
 	private boolean hasHomesPermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.homes") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.homes") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin");
 	}
 
 	private boolean hasHomesOtherPermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.homes.other") || sender.hasPermission("nkhome.admin"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.homes.other") || sender.hasPermission("nkhome.admin");
 	}
 
 	private boolean hasAdminRankPermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.rank.*"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.rank.*");
 	}
 }

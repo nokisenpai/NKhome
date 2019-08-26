@@ -89,14 +89,7 @@ public class PlayerBedEnter implements Listener
 
 	private boolean hasSetBedHomePermissions(Player player)
 	{
-		if(player.hasPermission("*") || player.hasPermission("nkhome.*") || player.hasPermission("nkhome.bed") || player.hasPermission("nkhome.user")
-				|| player.hasPermission("nkhome.admin"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return player.hasPermission("*") || player.hasPermission("nkhome.*") || player.hasPermission("nkhome.bed") || player.hasPermission("nkhome.user")
+				|| player.hasPermission("nkhome.admin");
 	}
 }

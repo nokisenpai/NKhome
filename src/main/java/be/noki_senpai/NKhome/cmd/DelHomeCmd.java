@@ -101,27 +101,13 @@ public class DelHomeCmd implements CommandExecutor
 
 	private boolean hasDelHomePermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.delhome")
-				|| sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.delhome")
+				|| sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin");
 	}
 
 	private boolean hasDelHomeOtherPermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.delhome.other")
-				|| sender.hasPermission("nkhome.admin"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.delhome.other")
+				|| sender.hasPermission("nkhome.admin");
 	}
 }

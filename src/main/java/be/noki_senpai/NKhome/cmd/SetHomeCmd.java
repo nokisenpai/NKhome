@@ -28,7 +28,6 @@ public class SetHomeCmd implements CommandExecutor
 	@Override
 	public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) 
 	{
-		int maxHome = 0;
 		// Command called by a player
 		if (sender instanceof Player) 
 		{
@@ -65,7 +64,7 @@ public class SetHomeCmd implements CommandExecutor
 					return true;
 				}
 
-				maxHome = getMaxHome(sender);
+				int maxHome = getMaxHome(sender);
 
 				maxHome += player.getHomeBonus();
 				
@@ -119,25 +118,11 @@ public class SetHomeCmd implements CommandExecutor
 
 	private boolean hasSetHomePermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.sethome") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.sethome") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin");
 	}
 
 	private boolean hasAdminRankPermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.rank.*"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.rank.*");
 	}
 }
