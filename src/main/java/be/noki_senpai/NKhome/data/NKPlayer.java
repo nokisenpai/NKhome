@@ -263,7 +263,6 @@ public class NKPlayer
 	{
 		this.bed = new Home(-1, id, server, name, world, x, y, z, pitch, yaw);
 	}
-
 	public void delBed()
 	{
 		this.bed = null;
@@ -287,7 +286,6 @@ public class NKPlayer
 	{
 		cpt++;
 		this.homes.put(name, new Home(cpt, id, server, name, world, x, y, z, pitch, yaw));
-
 	}
 
 	// delHome
@@ -321,7 +319,6 @@ public class NKPlayer
 			Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + NKhome.PNAME + " Error while setting tp home.");
 			e.printStackTrace();
 		}
-
 	}
 
 	// Delete tp home
