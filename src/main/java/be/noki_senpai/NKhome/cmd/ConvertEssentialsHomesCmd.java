@@ -116,7 +116,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 							traitedFile++;
 
 							// *******************************
-							// Files operation
+							// Files operations
 							// *******************************
 
 							File playerFile = files.get(i);
@@ -149,7 +149,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 							}
 
 							// *******************************
-							// Saving players operation
+							// Saving players operations
 							// *******************************
 
 							String playerName = essentialsHomes.getString("lastAccountName");
@@ -193,6 +193,13 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 
 									ps.close();
 									resultat.close();
+
+									req = "INSERT INTO " + DatabaseManager.table.get("players_datas") + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";
+									ps = bdd.prepareStatement(req);
+									ps.setInt(1, id);
+									ps.executeUpdate();
+
+									ps.close();
 								}
 								catch(SQLException e)
 								{
@@ -202,7 +209,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 							}
 
 							// *******************************
-							// Saving homes operation
+							// Saving homes operations
 							// *******************************
 
 							Map<String, Home> homes = new HashMap<String, Home>();
