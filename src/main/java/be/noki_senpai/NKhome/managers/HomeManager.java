@@ -34,7 +34,7 @@ public class HomeManager
 	public void loadHome()
 	{
 		// Get all connected players
-		Bukkit.getOnlinePlayers().forEach(player -> players.putIfAbsent(player.getDisplayName(), new NKPlayer(player.getUniqueId())));
+		Bukkit.getOnlinePlayers().forEach(player -> players.put(player.getDisplayName(), new NKPlayer(player.getUniqueId())));
 	}
 
 	public void unloadHome()
@@ -54,7 +54,7 @@ public class HomeManager
 
 	public void addPlayer(Player player)
 	{
-		players.putIfAbsent(player.getName(), new NKPlayer(player.getUniqueId()));
+		players.put(player.getName(), new NKPlayer(player.getUniqueId()));
 	}
 
 	public void delPlayer(String playerName)
@@ -370,7 +370,7 @@ public class HomeManager
 		Map<String, Home> homes = new LinkedHashMap<String, Home>(players.get(playerName).getHomes());
 		if(players.get(playerName).getBed() != null)
 		{
-			homes.putIfAbsent("bed", players.get(playerName).getBed());
+			homes.put("bed", players.get(playerName).getBed());
 		}
 		return homes;
 	}
@@ -404,13 +404,13 @@ public class HomeManager
 				else
 				{
 					cpt++;
-					homes.putIfAbsent(resultat.getString("name"), new Home(cpt, resultat.getInt("id"), resultat.getString("server"), resultat.getString("name"), resultat.getString("world"), resultat.getDouble("x"), resultat.getDouble("y"), resultat.getDouble("z"), resultat.getFloat("pitch"), resultat.getFloat("yaw")));
+					homes.put(resultat.getString("name"), new Home(cpt, resultat.getInt("id"), resultat.getString("server"), resultat.getString("name"), resultat.getString("world"), resultat.getDouble("x"), resultat.getDouble("y"), resultat.getDouble("z"), resultat.getFloat("pitch"), resultat.getFloat("yaw")));
 				}
 			}
 
 			if(bed != null)
 			{
-				homes.putIfAbsent("bed", bed);
+				homes.put("bed", bed);
 			}
 
 			ps.close();

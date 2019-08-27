@@ -100,7 +100,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 
 						while(resultat.next())
 						{
-							playerList.putIfAbsent(resultat.getString("uuid"), resultat.getInt("id"));
+							playerList.put(resultat.getString("uuid"), resultat.getInt("id"));
 						}
 						ps.close();
 						resultat.close();
@@ -116,7 +116,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 							traitedFile++;
 
 							// *******************************
-							// Files operation
+							// Files operations
 							// *******************************
 
 							File playerFile = files.get(i);
@@ -149,7 +149,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 							}
 
 							// *******************************
-							// Saving players operation
+							// Saving players operations
 							// *******************************
 
 							String playerName = essentialsHomes.getString("lastAccountName");
@@ -193,6 +193,13 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 
 									ps.close();
 									resultat.close();
+
+									req = "INSERT INTO " + DatabaseManager.table.get("players_datas") + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";
+									ps = bdd.prepareStatement(req);
+									ps.setInt(1, id);
+									ps.executeUpdate();
+
+									ps.close();
 								}
 								catch(SQLException e)
 								{
@@ -202,7 +209,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 							}
 
 							// *******************************
-							// Saving homes operation
+							// Saving homes operations
 							// *******************************
 
 							Map<String, Home> homes = new HashMap<String, Home>();
@@ -226,7 +233,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 										float pitch = (float) configHome.getDouble("pitch");
 										float yaw = (float) configHome.getDouble("yaw");
 
-										homes.putIfAbsent(key, new Home(-1, -1, server, name, world, x, y, z, pitch, yaw));
+										homes.put(key, new Home(-1, -1, server, name, world, x, y, z, pitch, yaw));
 									}
 								}
 							}
@@ -331,7 +338,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 											float pitch = 0;
 											float yaw = 0;
 
-											homes.putIfAbsent(name, new Home(-1, -1, server, name, world, x, y, z, pitch, yaw));
+											homes.put(name, new Home(-1, -1, server, name, world, x, y, z, pitch, yaw));
 										}
 									}
 								}
@@ -396,14 +403,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 
 	public boolean hasConvertEssentialsHomesPermissions(CommandSender sender)
 	{
-		if(sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.convert")
-				|| sender.hasPermission("nkhome.admin"))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.convert")
+				|| sender.hasPermission("nkhome.admin");
 	}
 }
