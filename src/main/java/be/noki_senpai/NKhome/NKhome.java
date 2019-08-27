@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class NKhome extends JavaPlugin
 {
@@ -23,48 +24,53 @@ public class NKhome extends JavaPlugin
 		plugin = this;
 		System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "WARN");
 		this.saveDefaultConfig();
-
-		console = Bukkit.getConsoleSender();
-		manager = new Manager(this);
-
-		// Load configuration
-		if(!manager.getConfigManager().loadConfig())
+		new BukkitRunnable()
 		{
-			disablePlugin();
-			return;
-		}
+			@Override public void run()
+			{
+				console = Bukkit.getConsoleSender();
+				manager = new Manager(plugin);
 
-		// Load database connection (with check)
-		if(!manager.getDatabaseManager().loadDatabase())
-		{
-			disablePlugin();
-			return;
-		}
+				// Load configuration
+				if(!manager.getConfigManager().loadConfig())
+				{
+					disablePlugin();
+					return;
+				}
 
-		// Load homes for online players
-		manager.getHomeManager().loadHome();
+				// Load database connection (with check)
+				if(!manager.getDatabaseManager().loadDatabase())
+				{
+					disablePlugin();
+					return;
+				}
 
-		// Register listeners
-		getServer().getPluginManager().registerEvents(new PlayerConnectionListener(manager.getHomeManager()), this);
-		getServer().getPluginManager().registerEvents(new PlayerBedEnter(manager.getHomeManager()), this);
+				// Load homes for online players
+				manager.getHomeManager().loadHome();
 
-		// Set tabulation completers
-		getCommand("home").setTabCompleter(new HomeCompleter(manager.getHomeManager()));
-		getCommand("delhome").setTabCompleter(new HomeCompleter(manager.getHomeManager()));
+				// Register listeners
+				getServer().getPluginManager().registerEvents(new PlayerConnectionListener(manager.getHomeManager()), plugin);
+				getServer().getPluginManager().registerEvents(new PlayerBedEnter(manager.getHomeManager()), plugin);
 
-		// Register commands
-		getCommand("home").setExecutor(new HomeCmd(manager.getHomeManager()));
-		getCommand("sethome").setExecutor(new SetHomeCmd(manager.getHomeManager(), manager.getConfigManager()));
-		getCommand("delhome").setExecutor(new DelHomeCmd(manager.getHomeManager()));
-		getCommand("homes").setExecutor(new HomesCmd(manager.getHomeManager(), manager.getConfigManager()));
-		getCommand("convertessentialshomes").setExecutor(new ConvertEssentialsHomesCmd(manager.getConfigManager()));
+				// Set tabulation completers
+				getCommand("home").setTabCompleter(new HomeCompleter(manager.getHomeManager()));
+				getCommand("delhome").setTabCompleter(new HomeCompleter(manager.getHomeManager()));
 
-		// Subscribe to BungeeCord channel
-		getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+				// Register commands
+				getCommand("home").setExecutor(new HomeCmd(manager.getHomeManager()));
+				getCommand("sethome").setExecutor(new SetHomeCmd(manager.getHomeManager(), manager.getConfigManager()));
+				getCommand("delhome").setExecutor(new DelHomeCmd(manager.getHomeManager()));
+				getCommand("homes").setExecutor(new HomesCmd(manager.getHomeManager(), manager.getConfigManager()));
+				getCommand("convertessentialshomes").setExecutor(new ConvertEssentialsHomesCmd(manager.getConfigManager()));
 
-		console.sendMessage(ChatColor.WHITE + "     .--. ");
-		console.sendMessage(ChatColor.WHITE + "     |   '.   " + ChatColor.GREEN + PNAME + " by NoKi_senpai - successfully enabled !");
-		console.sendMessage(ChatColor.WHITE + "'-..____.-'");
+				// Subscribe to BungeeCord channel
+				getServer().getMessenger().registerOutgoingPluginChannel(plugin, "BungeeCord");
+
+				console.sendMessage(ChatColor.WHITE + "     .--. ");
+				console.sendMessage(ChatColor.WHITE + "     |   '.   " + ChatColor.GREEN + PNAME + " by NoKi_senpai - successfully enabled !");
+				console.sendMessage(ChatColor.WHITE + "'-..____.-'");
+			}
+		}.runTaskAsynchronously(NKhome.getPlugin());
 	}
 
 	// Fired when plugin is disabled
