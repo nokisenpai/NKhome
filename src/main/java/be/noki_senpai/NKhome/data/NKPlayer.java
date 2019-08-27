@@ -41,10 +41,12 @@ public class NKPlayer
 		Integer homeTp = null;
 		try
 		{
-			bdd = DatabaseManager.getConnection();;
+			bdd = DatabaseManager.getConnection();
+			;
 
 			// Get 'id', 'uuid', 'name', 'amount' and 'home_tp' from database
-			req = "SELECT P.id as id, uuid, name, bonus, home_tp FROM " + DatabaseManager.table.get("players") + " P LEFT JOIN " + DatabaseManager.table.get("players_datas") + " HB ON P.id = HB.player_id WHERE uuid = ?";
+			req = "SELECT P.id as id, uuid, name, bonus, home_tp FROM " + DatabaseManager.table.get("players") + " P LEFT JOIN "
+					+ DatabaseManager.table.get("players_datas") + " HB ON P.id = HB.player_id WHERE uuid = ?";
 			ps = bdd.prepareStatement(req);
 			ps.setString(1, getPlayerUUID().toString());
 
@@ -54,17 +56,36 @@ public class NKPlayer
 			if(resultat.next())
 			{
 				setId(resultat.getInt("id"));
+				setPlayerName(resultat.getString("name"));
+
 				setHomeBonus(resultat.getInt("bonus"));
-
-				// Get home id where tp player on connect
-				homeTp = resultat.getInt("home_tp");
-
-				// If names are differents, update in database
-				if(!resultat.getString("name").equals(getPlayerName()))
+				if(resultat.wasNull())
 				{
 					ps.close();
 					resultat.close();
 
+					req = "INSERT INTO " + DatabaseManager.table.get("players_datas") + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";
+					ps = bdd.prepareStatement(req);
+					ps.setInt(1, this.getId());
+					ps.executeUpdate();
+
+					ps.close();
+
+					setHomeBonus(0);
+					homeTp = -1;
+				}
+				else
+				{
+					// Get home id where tp player on connect
+					homeTp = resultat.getInt("home_tp");
+				}
+
+				ps.close();
+				resultat.close();
+
+				// If names are differents, update in database
+				if(!playerName.equals(getPlayerName()))
+				{
 					req = "UPDATE " + DatabaseManager.table.get("players") + " SET name = ? WHERE id = ?";
 					ps = bdd.prepareStatement(req);
 					ps.setString(1, getPlayerName());
@@ -72,11 +93,6 @@ public class NKPlayer
 
 					ps.executeUpdate();
 					ps.close();
-				}
-				else
-				{
-					ps.close();
-					resultat.close();
 				}
 
 				if(homeTp != -1)
@@ -97,9 +113,11 @@ public class NKPlayer
 							float yaw = resultat.getFloat("yaw");
 							float pitch = resultat.getFloat("pitch");
 
-							if(resultat.getString("name").equals("bed") && !(Bukkit.getServer().getWorld(worldName).getBlockAt(CoordTask.BlockCoord(x), (int)y, CoordTask.BlockCoord(z)).getBlockData() instanceof org.bukkit.block.data.type.Bed))
+							if(resultat.getString("name").equals("bed")
+									&& !(Bukkit.getServer().getWorld(worldName).getBlockAt(CoordTask.BlockCoord(x), (int) y, CoordTask.BlockCoord(z)).getBlockData() instanceof org.bukkit.block.data.type.Bed))
 							{
-								Bukkit.getServer().getPlayer(this.getPlayerUUID()).sendMessage(ChatColor.RED + "Votre lit n'existe plus. \nCe home n'existe pas.");
+								Bukkit.getServer().getPlayer(this.getPlayerUUID()).sendMessage(
+										ChatColor.RED + "Votre lit n'existe plus. \nCe home n'existe pas.");
 								delTpHome(homeTp);
 							}
 							else
@@ -115,7 +133,8 @@ public class NKPlayer
 
 								if(safeLocation == null)
 								{
-									Bukkit.getServer().getPlayer(this.getPlayerUUID()).sendMessage(ChatColor.RED + "Ce home est obstrué. Par sécurité vous n'avez pas été téléporté.");
+									Bukkit.getServer().getPlayer(this.getPlayerUUID()).sendMessage(
+											ChatColor.RED + "Ce home est obstrué. Par sécurité vous n'avez pas été téléporté.");
 								}
 								else
 								{
@@ -138,27 +157,11 @@ public class NKPlayer
 				{
 					if(resultat.getString("name").equals("bed"))
 					{
-						setBed(resultat.getInt("id"),
-								resultat.getString("server"),
-								resultat.getString("name"),
-								resultat.getString("world"),
-								resultat.getDouble("x"),
-								resultat.getDouble("y"),
-								resultat.getDouble("z"),
-								resultat.getFloat("pitch"),
-								resultat.getFloat("yaw"));
+						setBed(resultat.getInt("id"), resultat.getString("server"), resultat.getString("name"), resultat.getString("world"), resultat.getDouble("x"), resultat.getDouble("y"), resultat.getDouble("z"), resultat.getFloat("pitch"), resultat.getFloat("yaw"));
 					}
 					else
 					{
-						addHome(resultat.getInt("id"),
-								resultat.getString("server"),
-								resultat.getString("name"),
-								resultat.getString("world"),
-								resultat.getDouble("x"),
-								resultat.getDouble("y"),
-								resultat.getDouble("z"),
-								resultat.getFloat("pitch"),
-								resultat.getFloat("yaw"));
+						addHome(resultat.getInt("id"), resultat.getString("server"), resultat.getString("name"), resultat.getString("world"), resultat.getDouble("x"), resultat.getDouble("y"), resultat.getDouble("z"), resultat.getFloat("pitch"), resultat.getFloat("yaw"));
 					}
 				}
 				ps.close();
@@ -191,14 +194,12 @@ public class NKPlayer
 				ps.close();
 			}
 		}
-		catch (SQLException e)
+		catch(SQLException e)
 		{
 			Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + NKhome.PNAME + " Error while setting a player. (Error#data.Players.000)");
 			e.printStackTrace();
 		}
 	}
-
-
 
 	//######################################
 	// Getters & Setters
@@ -209,6 +210,7 @@ public class NKPlayer
 	{
 		return id;
 	}
+
 	public void setId(int id)
 	{
 		this.id = id;
@@ -219,6 +221,7 @@ public class NKPlayer
 	{
 		return playerUUID;
 	}
+
 	public void setPlayerUUID(UUID playerUUID)
 	{
 		this.playerUUID = playerUUID;
@@ -229,6 +232,7 @@ public class NKPlayer
 	{
 		return playerName;
 	}
+
 	public void setPlayerName(String playerName)
 	{
 		this.playerName = playerName;
@@ -239,6 +243,7 @@ public class NKPlayer
 	{
 		return homeBonus;
 	}
+
 	public void setHomeBonus(int homeBonus)
 	{
 		this.homeBonus = homeBonus;
@@ -249,6 +254,7 @@ public class NKPlayer
 	{
 		return homes;
 	}
+
 	public void setHomes(Map<String, Home> homes)
 	{
 		this.homes = homes;
@@ -259,10 +265,12 @@ public class NKPlayer
 	{
 		return bed;
 	}
+
 	public void setBed(int id, String server, String name, String world, double x, double y, double z, float pitch, float yaw)
 	{
 		this.bed = new Home(-1, id, server, name, world, x, y, z, pitch, yaw);
 	}
+
 	public void delBed()
 	{
 		this.bed = null;
@@ -273,6 +281,7 @@ public class NKPlayer
 	{
 		return cpt;
 	}
+
 	public void setCpt(int cpt)
 	{
 		this.cpt = cpt;
