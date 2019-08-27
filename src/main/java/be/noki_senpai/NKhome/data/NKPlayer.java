@@ -18,6 +18,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 import be.noki_senpai.NKhome.NKhome;
 import be.noki_senpai.NKhome.utils.CoordTask;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class NKPlayer
 {
@@ -138,7 +139,14 @@ public class NKPlayer
 								}
 								else
 								{
-									Bukkit.getServer().getPlayer(playerUUID).teleport(safeLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+									Location finalSafeLocation = safeLocation;
+									new BukkitRunnable()
+									{
+										@Override public void run()
+										{
+											Bukkit.getServer().getPlayer(playerUUID).teleport(finalSafeLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+										}
+									}.runTask(NKhome.getPlugin());
 								}
 							}
 						}
