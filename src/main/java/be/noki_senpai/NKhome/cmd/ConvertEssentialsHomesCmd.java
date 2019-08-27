@@ -89,13 +89,13 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 						Connection bdd = null;
 						ResultSet resultat = null;
 						PreparedStatement ps = null;
-						String req = null;
+						StringBuilder req = null;
 
 						bdd = DatabaseManager.getConnection();
 
 						// Get all current players stored on database
-						req = "SELECT id, uuid FROM " + DatabaseManager.table.get("players");
-						ps = bdd.prepareStatement(req);
+						req = new StringBuilder("SELECT id, uuid FROM " + DatabaseManager.table.get("players"));
+						ps = bdd.prepareStatement(req.toString());
 						resultat = ps.executeQuery();
 
 						while(resultat.next())
@@ -180,9 +180,9 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 								// Insert this player on database
 								try
 								{
-									req = "INSERT INTO " + DatabaseManager.table.get("players")
-											+ " ( uuid, name) VALUES ( ? , ? ) ON DUPLICATE KEY UPDATE name = name";
-									ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);
+									req = new StringBuilder("INSERT INTO " + DatabaseManager.table.get("players")
+											+ " ( uuid, name) VALUES ( ? , ? ) ON DUPLICATE KEY UPDATE name = name");
+									ps = bdd.prepareStatement(req.toString(), Statement.RETURN_GENERATED_KEYS);
 									ps.setString(1, uuid.toString());
 									ps.setString(2, playerName);
 									ps.executeUpdate();
@@ -194,8 +194,9 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 									ps.close();
 									resultat.close();
 
-									req = "INSERT INTO " + DatabaseManager.table.get("players_datas") + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";
-									ps = bdd.prepareStatement(req);
+									req = new StringBuilder("INSERT INTO " + DatabaseManager.table.get("players_datas")
+											+ " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )");
+									ps = bdd.prepareStatement(req.toString());
 									ps.setInt(1, id);
 									ps.executeUpdate();
 
@@ -350,18 +351,16 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 								nbHome += homes.size();
 
 								// Insert each home from this player on database
-								req = "INSERT INTO " + DatabaseManager.table.get("homes")
-										+ " ( player_id, server, name, world, x, y, z, pitch, yaw) VALUES ";
+								req = new StringBuilder("INSERT INTO " + DatabaseManager.table.get("homes")
+										+ " ( player_id, server, name, world, x, y, z, pitch, yaw) VALUES ");
 								for(Home home : homes.values())
 								{
-									req = req + "( " + id + " , '" + home.getServer() + "' , '" + home.getName() + "' , '" + home.getWorld() + "' , "
-											+ home.getX() + " , " + home.getY() + " , " + home.getZ() + " , " + home.getPitch() + " , "
-											+ home.getYaw() + " ),";
+									req.append("( " + id + " , '" + home.getServer() + "' , '" + home.getName() + "' , '" + home.getWorld() + "' , " + home.getX() + " , " + home.getY() + " , " + home.getZ() + " , " + home.getPitch() + " , " + home.getYaw() + " ),");
 								}
-								req = req.substring(0, req.length() - 1);
+								req = new StringBuilder(req.substring(0, req.length() - 1));
 								// If a home already exist with same name we update it.
-								req += " ON DUPLICATE KEY UPDATE server = VALUES(server), world = VALUES(world), x = VALUES(x), y = VALUES(y), z = VALUES(z), pitch = VALUES(pitch), yaw = VALUES(yaw)";
-								ps = bdd.prepareStatement(req);
+								req.append(" ON DUPLICATE KEY UPDATE server = VALUES(server), world = VALUES(world), x = VALUES(x), y = VALUES(y), z = VALUES(z), pitch = VALUES(pitch), yaw = VALUES(yaw)");
+								ps = bdd.prepareStatement(req.toString());
 								ps.executeUpdate();
 								ps.close();
 							}

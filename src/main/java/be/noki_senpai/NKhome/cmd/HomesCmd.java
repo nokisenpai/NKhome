@@ -146,32 +146,31 @@ public class HomesCmd implements CommandExecutor
 			}
 			else
 			{
-				String tmpHomes = null;
+				StringBuilder tmpHomes = new StringBuilder();
 				homeList += args[0] + " ----";
 				int cpt = 1;
 				for (Entry<String, Home> entry : homeManager.getHomes(args[0]).entrySet())
 				{
 					if(!entry.getKey().equals("bed"))
 					{
-						tmpHomes += "\n" + ChatColor.GREEN + cpt + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer()
-								+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
+						tmpHomes.append("\n" + ChatColor.GREEN + cpt + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer() + " [" + entry.getValue().getWorld() + "] [ " + (int) entry.getValue().getX() + " / " + (int) entry.getValue().getY() + " / " + (int) entry.getValue().getZ() + " ]");
 						cpt++;
 					}
 					else
 					{
-						tmpHomes += "\n" + ChatColor.GREEN + "~ bed - " + ChatColor.AQUA + entry.getValue().getServer()
-								+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
+						tmpHomes.append("\n" + ChatColor.GREEN + "~ bed - "
+								+ ChatColor.AQUA + entry.getValue().getServer() + " [" + entry.getValue().getWorld() + "] [ " + (int) entry.getValue().getX() + " / " + (int) entry.getValue().getY() + " / " + (int) entry.getValue().getZ() + " ]");
 					}
 				}
 
-				if(tmpHomes == null)
+				if(tmpHomes.length() == 0)
 				{
 					sender.sendMessage(ChatColor.RED + " Ce joueur n'a pas de home.");
 					return true;
 				}
 				else
 				{
-					sender.sendMessage(homeList + tmpHomes);
+					sender.sendMessage(homeList + tmpHomes.toString());
 					return true;
 				}
 			}
