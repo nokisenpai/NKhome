@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import be.noki_senpai.NKhome.NKhome;
 import be.noki_senpai.NKhome.data.Home;
 import be.noki_senpai.NKhome.utils.CheckType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class DelHomeCmd implements CommandExecutor
 {
@@ -27,81 +26,76 @@ public class DelHomeCmd implements CommandExecutor
 
 	@Override public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args)
 	{
-		new BukkitRunnable()
+		// Command called by a player
+		if(sender instanceof Player)
 		{
-			@Override public void run()
+			String playerName = null;
+			String homeName = null;
+			Home home = null;
+			if(!hasDelHomePermissions(sender))
 			{
-				// Command called by a player
-				if(sender instanceof Player)
+				// Send that the player does not have the permission
+				sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission !");
+				return true;
+			}
+			else
+			{
+				//if no argument
+				if(args.length == 0)
 				{
-					String playerName = null;
-					String homeName = null;
-					Home home = null;
-					if(!hasDelHomePermissions(sender))
+					sender.sendMessage(ChatColor.RED + " Vous devez spécifier un nom de home.");
+					return true;
+				}
+
+				args[0] = args[0].toLowerCase();
+
+				if(!CheckType.isAlphaNumeric(args[0]) && args[0].contains(":"))
+				{
+					if(hasDelHomeOtherPermissions(sender))
 					{
-						// Send that the player does not have the permission
-						sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission !");
-						return;
+						String[] homeArgs = args[0].split(":");
+						if(homeArgs.length >= 2)
+						{
+							playerName = homeArgs[0];
+							homeName = homeArgs[1];
+						}
+						else
+						{
+							sender.sendMessage(ChatColor.RED + " Vérifiez la syntaxe de la commande.");
+							return true;
+						}
 					}
 					else
 					{
-						//if no argument
-						if(args.length == 0)
-						{
-							sender.sendMessage(ChatColor.RED + " Vous devez spécifier un nom de home.");
-							return;
-						}
-
-						args[0] = args[0].toLowerCase();
-
-						if(!CheckType.isAlphaNumeric(args[0]) && args[0].contains(":"))
-						{
-							if(hasDelHomeOtherPermissions(sender))
-							{
-								String[] homeArgs = args[0].split(":");
-								if(homeArgs.length >= 2)
-								{
-									playerName = homeArgs[0];
-									homeName = homeArgs[1];
-								}
-								else
-								{
-									sender.sendMessage(ChatColor.RED + " Vérifiez la syntaxe de la commande.");
-									return;
-								}
-							}
-							else
-							{
-								sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission de supprimer le home d'un autre joueur !");
-								return;
-							}
-						}
-						else
-						{
-							playerName = sender.getName();
-							homeName = args[0];
-						}
-						home = homeManager.getHome(playerName, homeName);
-						if(home == null)
-						{
-							sender.sendMessage(ChatColor.RED + " Ce home n'existe pas.");
-						}
-						else
-						{
-							homeManager.delHome(playerName, home.getName());
-							sender.sendMessage(ChatColor.GREEN + " Votre home '" + home.getName() + "' a été supprimé.");
-						}
+						sender.sendMessage(ChatColor.RED + " Vous n'avez pas la permission de supprimer le home d'un autre joueur !");
+						return true;
 					}
 				}
-
-				// Command called by Console
-				if(sender instanceof ConsoleCommandSender)
+				else
 				{
-					sender.sendMessage(ChatColor.RED + " Vous ne pouvez pas utiliser cette commande dans la console.");
-					return;
+					playerName = sender.getName();
+					homeName = args[0];
+				}
+				home = homeManager.getHome(playerName, homeName);
+				if(home == null)
+				{
+					sender.sendMessage(ChatColor.RED + " Ce home n'existe pas.");
+				}
+				else
+				{
+					homeManager.delHome(playerName, home.getName());
+					sender.sendMessage(ChatColor.GREEN + " Votre home '" + home.getName() + "' a été supprimé.");
 				}
 			}
-		}.runTaskAsynchronously(NKhome.getPlugin());
+		}
+
+		// Command called by Console
+		if(sender instanceof ConsoleCommandSender)
+		{
+			sender.sendMessage(ChatColor.RED + " Vous ne pouvez pas utiliser cette commande dans la console.");
+			return true;
+		}
+
 		return true;
 	}
 
