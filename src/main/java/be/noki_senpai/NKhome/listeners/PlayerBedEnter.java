@@ -2,6 +2,7 @@ package be.noki_senpai.NKhome.listeners;
 
 import be.noki_senpai.NKhome.managers.ConfigManager;
 import be.noki_senpai.NKhome.managers.HomeManager;
+import be.noki_senpai.NKhome.managers.QueueManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -15,13 +16,17 @@ import org.bukkit.event.player.PlayerBedEnterEvent.BedEnterResult;
 import be.noki_senpai.NKhome.NKhome;
 import be.noki_senpai.NKhome.data.Home;
 
+import java.util.function.Function;
+
 public class PlayerBedEnter implements Listener
 {
 	private HomeManager homeManager;
+	private QueueManager queueManager = null;
 
-	public PlayerBedEnter(HomeManager homeManager)
+	public PlayerBedEnter(HomeManager homeManager, QueueManager queueManager)
 	{
 		this.homeManager = homeManager;
+		this.queueManager = queueManager;
 	}
 
 	@EventHandler
@@ -49,7 +54,15 @@ public class PlayerBedEnter implements Listener
 							// Check if bed has been broken
 							if(!(homeManager.isBedBlock(oldBedHome)))
 							{
-								homeManager.updateHome(playerName, "bed", bedLocation);
+								queueManager.addToQueue(new Function()
+								{
+									@Override public Object apply(Object o)
+									{
+										homeManager.updateHome(playerName, "bed", bedLocation);
+										return null;
+									}
+								});
+
 								event.getPlayer().sendMessage(ChatColor.GREEN + " Votre home 'bed' a été mis à jour.");
 							}
 							// No else.
@@ -64,12 +77,19 @@ public class PlayerBedEnter implements Listener
 					// No else.
 					/*
 					 * else { event.getPlayer().sendMessage(ChatColor.GREEN +
-					 * " Il ne s'est rien pass�."); }
+					 * " Il ne s'est rien passé."); }
 					 */
 				}
 				else
 				{
-					homeManager.addHome(playerName, "bed", bedLocation);
+					queueManager.addToQueue(new Function()
+					{
+						@Override public Object apply(Object o)
+						{
+							homeManager.addHome(playerName, "bed", bedLocation);
+							return null;
+						}
+					});
 					event.getPlayer().sendMessage(ChatColor.GREEN + " Votre home 'bed' a été créé.");
 				}
 			}

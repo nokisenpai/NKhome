@@ -45,18 +45,18 @@ public class NKhome extends JavaPlugin
 		manager.getHomeManager().loadHome();
 
 		// Register listeners
-		getServer().getPluginManager().registerEvents(new PlayerConnectionListener(manager.getHomeManager()), this);
-		getServer().getPluginManager().registerEvents(new PlayerBedEnter(manager.getHomeManager()), this);
+		getServer().getPluginManager().registerEvents(new PlayerConnectionListener(manager.getHomeManager(), manager.getQueueManager()), this);
+		getServer().getPluginManager().registerEvents(new PlayerBedEnter(manager.getHomeManager(), manager.getQueueManager()), this);
 
 		// Set tabulation completers
 		getCommand("home").setTabCompleter(new HomeCompleter(manager.getHomeManager()));
 		getCommand("delhome").setTabCompleter(new HomeCompleter(manager.getHomeManager()));
 
 		// Register commands
-		getCommand("home").setExecutor(new HomeCmd(manager.getHomeManager()));
-		getCommand("sethome").setExecutor(new SetHomeCmd(manager.getHomeManager(), manager.getConfigManager()));
-		getCommand("delhome").setExecutor(new DelHomeCmd(manager.getHomeManager()));
-		getCommand("homes").setExecutor(new HomesCmd(manager.getHomeManager(), manager.getConfigManager()));
+		getCommand("home").setExecutor(new HomeCmd(manager.getHomeManager(), manager.getQueueManager()));
+		getCommand("sethome").setExecutor(new SetHomeCmd(manager.getHomeManager(), manager.getConfigManager(), manager.getQueueManager()));
+		getCommand("delhome").setExecutor(new DelHomeCmd(manager.getHomeManager(), manager.getQueueManager()));
+		getCommand("homes").setExecutor(new HomesCmd(manager.getHomeManager(), manager.getConfigManager(), manager.getQueueManager()));
 		getCommand("convertessentialshomes").setExecutor(new ConvertEssentialsHomesCmd(manager.getConfigManager()));
 
 		// Subscribe to BungeeCord channel

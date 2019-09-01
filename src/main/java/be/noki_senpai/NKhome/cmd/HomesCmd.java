@@ -2,10 +2,12 @@ package be.noki_senpai.NKhome.cmd;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 import be.noki_senpai.NKhome.data.NKPlayer;
 import be.noki_senpai.NKhome.managers.ConfigManager;
 import be.noki_senpai.NKhome.managers.HomeManager;
+import be.noki_senpai.NKhome.managers.QueueManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,16 +16,19 @@ import org.bukkit.entity.Player;
 
 import be.noki_senpai.NKhome.NKhome;
 import be.noki_senpai.NKhome.data.Home;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class HomesCmd implements CommandExecutor
 {
 	private HomeManager homeManager = null;
 	private ConfigManager configManager = null;
+	private QueueManager queueManager = null;
 
-	public HomesCmd(HomeManager homeManager, ConfigManager configManager)
+	public HomesCmd(HomeManager homeManager, ConfigManager configManager, QueueManager queueManager)
 	{
 		this.homeManager = homeManager;
 		this.configManager = configManager;
+		this.queueManager = queueManager;
 	}
 
 	@Override
@@ -101,33 +106,56 @@ public class HomesCmd implements CommandExecutor
 					}
 					else
 					{
-						homeList += args[0] + " ----";
-						int cpt = 1;
-						for (Entry<String, Home> entry : homeManager.getHomes(args[0]).entrySet())
+						String finalHomeList = homeList;
+						queueManager.addToQueue(new Function()
 						{
-							if(!entry.getKey().equals("bed"))
+							@Override public Object apply(Object o)
 							{
-								tmpHomes += "\n" + ChatColor.GREEN + cpt + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer()
-										+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
-								cpt++;
-							}
-							else
-							{
-								tmpHomes += "\n" + ChatColor.GREEN + "~ bed - " + ChatColor.AQUA + entry.getValue().getServer()
-										+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
-							}
-						}
+								Map<String, Home> homes = homeManager.getHomes(args[0]);
 
-						if(tmpHomes.equals(""))
-						{
-							sender.sendMessage(ChatColor.RED + " Ce joueur n'a pas de home.");
-							return true;
-						}
-						else
-						{
-							sender.sendMessage(homeList + tmpHomes);
-							return true;
-						}
+								new BukkitRunnable()
+								{
+									@Override public void run()
+									{
+										String homeList = finalHomeList;
+										String tmpHomes = "";
+										homeList += args[0] + " ----";
+										int cpt = 1;
+										for (Entry<String, Home> entry : homes.entrySet())
+										{
+											if(!entry.getKey().equals("bed"))
+											{
+												tmpHomes += "\n" + ChatColor.GREEN + cpt + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer()
+														+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
+												cpt++;
+											}
+											else
+											{
+												tmpHomes += "\n" + ChatColor.GREEN + "~ bed - " + ChatColor.AQUA + entry.getValue().getServer()
+														+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
+											}
+										}
+
+										if(tmpHomes.equals(""))
+										{
+											sender.sendMessage(ChatColor.RED + " Ce joueur n'a pas de home.");
+										}
+										else
+										{
+											sender.sendMessage(homeList + tmpHomes);
+										}
+									}
+								}.runTask(NKhome.getPlugin());
+
+								return null;
+							}
+						});
+
+
+
+
+
+
 					}
 				}
 			}
@@ -146,33 +174,50 @@ public class HomesCmd implements CommandExecutor
 			}
 			else
 			{
-				StringBuilder tmpHomes = new StringBuilder();
-				homeList += args[0] + " ----";
-				int cpt = 1;
-				for (Entry<String, Home> entry : homeManager.getHomes(args[0]).entrySet())
+				String finalHomeList = homeList;
+				queueManager.addToQueue(new Function()
 				{
-					if(!entry.getKey().equals("bed"))
+					@Override public Object apply(Object o)
 					{
-						tmpHomes.append("\n" + ChatColor.GREEN + cpt + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer() + " [" + entry.getValue().getWorld() + "] [ " + (int) entry.getValue().getX() + " / " + (int) entry.getValue().getY() + " / " + (int) entry.getValue().getZ() + " ]");
-						cpt++;
-					}
-					else
-					{
-						tmpHomes.append("\n" + ChatColor.GREEN + "~ bed - "
-								+ ChatColor.AQUA + entry.getValue().getServer() + " [" + entry.getValue().getWorld() + "] [ " + (int) entry.getValue().getX() + " / " + (int) entry.getValue().getY() + " / " + (int) entry.getValue().getZ() + " ]");
-					}
-				}
+						Map<String, Home> homes = homeManager.getHomes(args[0]);
 
-				if(tmpHomes.length() == 0)
-				{
-					sender.sendMessage(ChatColor.RED + " Ce joueur n'a pas de home.");
-					return true;
-				}
-				else
-				{
-					sender.sendMessage(homeList + tmpHomes.toString());
-					return true;
-				}
+						new BukkitRunnable()
+						{
+							@Override public void run()
+							{
+								String homeList = finalHomeList;
+								String tmpHomes = "";
+								homeList += args[0] + " ----";
+								int cpt = 1;
+								for (Entry<String, Home> entry : homes.entrySet())
+								{
+									if(!entry.getKey().equals("bed"))
+									{
+										tmpHomes += "\n" + ChatColor.GREEN + cpt + ". " + entry.getKey() + " - " + ChatColor.AQUA + entry.getValue().getServer()
+												+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
+										cpt++;
+									}
+									else
+									{
+										tmpHomes += "\n" + ChatColor.GREEN + "~ bed - " + ChatColor.AQUA + entry.getValue().getServer()
+												+ " [" + entry.getValue().getWorld() + "] [ " + (int)entry.getValue().getX() + " / " + (int)entry.getValue().getY() + " / " + (int)entry.getValue().getZ() + " ]";
+									}
+								}
+
+								if(tmpHomes.equals(""))
+								{
+									sender.sendMessage(ChatColor.RED + " Ce joueur n'a pas de home.");
+								}
+								else
+								{
+									sender.sendMessage(homeList + tmpHomes);
+								}
+							}
+						}.runTask(NKhome.getPlugin());
+
+						return null;
+					}
+				});
 			}
 		}
 		

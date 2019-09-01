@@ -293,10 +293,13 @@ public class HomeManager
 
 	private void delOnlineHome(String playerName, String homeName)
 	{
-		players.get(playerName).delHome(homeName);
+		if(players.get(playerName) != null)
+		{
+			players.get(playerName).delHome(homeName);
+		}
 	}
 
-	private void delOfflineHome(String playerName, String homeName)
+	private void delOfflineHome(String playerName, int id)
 	{
 		Connection bdd = null;
 		PreparedStatement ps = null;
@@ -307,7 +310,7 @@ public class HomeManager
 			bdd = DatabaseManager.getConnection();
 			req = "DELETE FROM " + DatabaseManager.table.get("homes") + " WHERE id = ?";
 			ps = bdd.prepareStatement(req);
-			ps.setInt(1, players.get(playerName).getHomes().get(homeName).getId());
+			ps.setInt(1, id);
 			ps.executeUpdate();
 
 			ps.close();
@@ -321,10 +324,13 @@ public class HomeManager
 
 	private void delOnlineBedHome(String playerName)
 	{
-		players.get(playerName).delBed();
+		if(players.get(playerName) != null)
+		{
+			players.get(playerName).delBed();
+		}
 	}
 
-	private void delOfflineBedHome(String playerName)
+	private void delOfflineBedHome(String playerName, int id)
 	{
 		Connection bdd = null;
 		PreparedStatement ps = null;
@@ -335,7 +341,7 @@ public class HomeManager
 			bdd = DatabaseManager.getConnection();
 			req = "DELETE FROM " + DatabaseManager.table.get("homes") + " WHERE id = ?";
 			ps = bdd.prepareStatement(req);
-			ps.setInt(1, players.get(playerName).getBed().getId());
+			ps.setInt(1, id);
 			ps.executeUpdate();
 
 			ps.close();
@@ -347,17 +353,17 @@ public class HomeManager
 		}
 	}
 
-	public void delHome(String playerName, String homeName)
+	public void delHome(String playerName, Home home)
 	{
-		if(homeName.equals("bed"))
+		if(home.getName().equals("bed"))
 		{
-			delOfflineBedHome(playerName);
+			delOfflineBedHome(playerName, home.getId());
 			delOnlineBedHome(playerName);
 		}
 		else
 		{
-			delOfflineHome(playerName, homeName);
-			delOnlineHome(playerName, homeName);
+			delOfflineHome(playerName,  home.getId());
+			delOnlineHome(playerName,  home.getName());
 		}
 	}
 

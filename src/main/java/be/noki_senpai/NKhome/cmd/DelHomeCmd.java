@@ -3,8 +3,10 @@ package be.noki_senpai.NKhome.cmd;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import be.noki_senpai.NKhome.managers.HomeManager;
+import be.noki_senpai.NKhome.managers.QueueManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,14 +16,17 @@ import org.bukkit.entity.Player;
 import be.noki_senpai.NKhome.NKhome;
 import be.noki_senpai.NKhome.data.Home;
 import be.noki_senpai.NKhome.utils.CheckType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class DelHomeCmd implements CommandExecutor
 {
 	private HomeManager homeManager = null;
+	private QueueManager queueManager = null;
 
-	public DelHomeCmd(HomeManager homeManager)
+	public DelHomeCmd(HomeManager homeManager, QueueManager queueManager)
 	{
 		this.homeManager = homeManager;
+		this.queueManager = queueManager;
 	}
 
 	@Override public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args)
@@ -29,9 +34,7 @@ public class DelHomeCmd implements CommandExecutor
 		// Command called by a player
 		if(sender instanceof Player)
 		{
-			String playerName = null;
-			String homeName = null;
-			Home home = null;
+
 			if(!hasDelHomePermissions(sender))
 			{
 				// Send that the player does not have the permission
@@ -40,6 +43,9 @@ public class DelHomeCmd implements CommandExecutor
 			}
 			else
 			{
+				String playerName = null;
+				String homeName = null;
+
 				//if no argument
 				if(args.length == 0)
 				{
@@ -76,16 +82,37 @@ public class DelHomeCmd implements CommandExecutor
 					playerName = sender.getName();
 					homeName = args[0];
 				}
-				home = homeManager.getHome(playerName, homeName);
-				if(home == null)
+
+				String finalPlayerName = playerName;
+				String finalHomeName = homeName;
+
+				queueManager.addToQueue(new Function()
 				{
-					sender.sendMessage(ChatColor.RED + " Ce home n'existe pas.");
-				}
-				else
-				{
-					homeManager.delHome(playerName, home.getName());
-					sender.sendMessage(ChatColor.GREEN + " Votre home '" + home.getName() + "' a été supprimé.");
-				}
+					@Override public Object apply(Object o)
+					{
+						Home home = homeManager.getHome(finalPlayerName, finalHomeName);
+						if(home != null)
+						{
+							homeManager.delHome(finalPlayerName, home);
+						}
+
+						new BukkitRunnable()
+						{
+							@Override public void run()
+							{
+								if(home != null)
+								{
+									sender.sendMessage(ChatColor.GREEN + " Le home '" + finalHomeName + "' a été supprimé.");
+								}
+								else
+								{
+									sender.sendMessage(ChatColor.RED + " Ce home n'existe pas.");
+								}
+							}
+						}.runTask(NKhome.getPlugin());
+						return null;
+					}
+				});
 			}
 		}
 
