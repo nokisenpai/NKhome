@@ -5,12 +5,15 @@ import org.bukkit.command.ConsoleCommandSender;
 
 import be.noki_senpai.NKhome.NKhome;
 
+import java.util.Queue;
+
 public class Manager
 {
 	private ConsoleCommandSender console = null;
 	private ConfigManager configManager = null;
 	private DatabaseManager databaseManager = null;
 	private HomeManager homeManager = null;
+	private QueueManager queueManager = null;
 
 	public Manager(NKhome instance)
 	{
@@ -18,6 +21,7 @@ public class Manager
 		configManager = new ConfigManager(instance.getConfig());
 		databaseManager = new DatabaseManager(configManager);
 		homeManager = new HomeManager();
+		queueManager = new QueueManager();
 	}
 
 	// ######################################
@@ -46,5 +50,11 @@ public class Manager
 	public HomeManager getHomeManager()
 	{
 		return homeManager;
+	}
+
+	// QueueManager
+	public QueueManager getQueueManager()
+	{
+		return queueManager;
 	}
 }

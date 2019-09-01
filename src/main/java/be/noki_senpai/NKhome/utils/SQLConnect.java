@@ -8,8 +8,6 @@ public class SQLConnect
 	private static HikariConfig jdbcConfig = new HikariConfig();
 	private static HikariDataSource ds = null;
 
-	
-	
 	public static HikariDataSource getHikariDS() 
 	{
 		if(ds.isClosed())
@@ -30,5 +28,4 @@ public class SQLConnect
 		jdbcConfig.setPassword(password_);
 		ds = new HikariDataSource(jdbcConfig);
 	}
-
 }

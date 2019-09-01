@@ -1,10 +1,12 @@
 package be.noki_senpai.NKhome.cmd;
 
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 import be.noki_senpai.NKhome.data.NKPlayer;
 import be.noki_senpai.NKhome.managers.ConfigManager;
 import be.noki_senpai.NKhome.managers.HomeManager;
+import be.noki_senpai.NKhome.managers.QueueManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,23 +15,25 @@ import org.bukkit.entity.Player;
 
 import be.noki_senpai.NKhome.NKhome;
 import be.noki_senpai.NKhome.utils.CheckType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class SetHomeCmd implements CommandExecutor
 {
 	private HomeManager homeManager = null;
 	private ConfigManager configManager = null;
+	private QueueManager queueManager = null;
 
-	public SetHomeCmd(HomeManager homeManager, ConfigManager configManager)
+	public SetHomeCmd(HomeManager homeManager, ConfigManager configManager, QueueManager queueManager)
 	{
 		this.homeManager = homeManager;
 		this.configManager = configManager;
+		this.queueManager = queueManager;
 	}
 
-	@Override
-	public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) 
+	@Override public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args)
 	{
 		// Command called by a player
-		if (sender instanceof Player) 
+		if(sender instanceof Player)
 		{
 
 			if(!hasSetHomePermissions(sender))
@@ -59,39 +63,70 @@ public class SetHomeCmd implements CommandExecutor
 
 				if(player.getHomes().containsKey(args[0]))
 				{
-					homeManager.updateHome(sender.getName(), args[0], ((Player) sender).getLocation());
-					sender.sendMessage(ChatColor.GREEN + " Votre home '" + args[0] + "' a été mis à jour.");
+					queueManager.addToQueue(new Function()
+					{
+						@Override public Object apply(Object o)
+						{
+							homeManager.updateHome(sender.getName(), args[0], ((Player) sender).getLocation());
+
+							new BukkitRunnable()
+							{
+								@Override public void run()
+								{
+									sender.sendMessage(ChatColor.GREEN + " Votre home '" + args[0] + "' a été mis à jour.");
+								}
+							}.runTask(NKhome.getPlugin());
+
+							return null;
+						}
+					});
+
 					return true;
 				}
 
 				int maxHome = getMaxHome(sender);
 
 				maxHome += player.getHomeBonus();
-				
+
 				if(maxHome <= player.getCpt())
 				{
-					sender.sendMessage(ChatColor.RED + " Vous ne pouvez pas faire plus de " + ChatColor.BOLD + maxHome + ChatColor.RESET + ChatColor.RED + " home(s).");
+					sender.sendMessage(
+							ChatColor.RED + " Vous ne pouvez pas faire plus de " + ChatColor.BOLD + maxHome + ChatColor.RESET + ChatColor.RED
+									+ " home(s).");
 					return true;
-					
+
 				}
 				else
 				{
-					homeManager.addHome(sender.getName(), args[0], ((Player) sender).getLocation());
-					sender.sendMessage(ChatColor.GREEN + " Votre home '" + args[0] + "' a été créé.");
+					queueManager.addToQueue(new Function()
+					{
+						@Override public Object apply(Object o)
+						{
+							homeManager.addHome(sender.getName(), args[0], ((Player) sender).getLocation());
+
+							new BukkitRunnable()
+							{
+								@Override public void run()
+								{
+									sender.sendMessage(ChatColor.GREEN + " Votre home '" + args[0] + "' a été créé.");
+								}
+							}.runTask(NKhome.getPlugin());
+
+							return null;
+						}
+					});
 					return true;
 				}
 			}
 		}
-		
-		
+
 		// Command called by Console
-		if (sender instanceof ConsoleCommandSender)
+		if(sender instanceof ConsoleCommandSender)
 		{
 			sender.sendMessage(ChatColor.RED + " Vous ne pouvez pas utiliser cette commande dans la console.");
 			return true;
 		}
-		
-		
+
 		return true;
 	}
 
@@ -105,7 +140,7 @@ public class SetHomeCmd implements CommandExecutor
 		}
 		else
 		{
-			for (Entry<String, Integer> entry : configManager.getRanks().entrySet())
+			for(Entry<String, Integer> entry : configManager.getRanks().entrySet())
 			{
 				if(sender.hasPermission("nkhome.rank." + entry.getKey()) && entry.getValue() > maxHome)
 				{
@@ -118,7 +153,8 @@ public class SetHomeCmd implements CommandExecutor
 
 	private boolean hasSetHomePermissions(CommandSender sender)
 	{
-		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.sethome") || sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin");
+		return sender.hasPermission("*") || sender.hasPermission("nkhome.*") || sender.hasPermission("nkhome.sethome")
+				|| sender.hasPermission("nkhome.user") || sender.hasPermission("nkhome.admin");
 	}
 
 	private boolean hasAdminRankPermissions(CommandSender sender)
