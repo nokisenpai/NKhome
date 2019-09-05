@@ -94,22 +94,13 @@ public class DelHomeCmd implements CommandExecutor
 						if(home != null)
 						{
 							homeManager.delHome(finalPlayerName, home);
+							sender.sendMessage(ChatColor.GREEN + " Le home '" + finalHomeName + "' a été supprimé.");
+						}
+						else
+						{
+							sender.sendMessage(ChatColor.RED + " Ce home n'existe pas.");
 						}
 
-						new BukkitRunnable()
-						{
-							@Override public void run()
-							{
-								if(home != null)
-								{
-									sender.sendMessage(ChatColor.GREEN + " Le home '" + finalHomeName + "' a été supprimé.");
-								}
-								else
-								{
-									sender.sendMessage(ChatColor.RED + " Ce home n'existe pas.");
-								}
-							}
-						}.runTask(NKhome.getPlugin());
 						return null;
 					}
 				});
