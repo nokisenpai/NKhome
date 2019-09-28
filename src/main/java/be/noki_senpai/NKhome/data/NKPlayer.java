@@ -46,8 +46,8 @@ public class NKPlayer
 			;
 
 			// Get 'id', 'uuid', 'name', 'amount' and 'home_tp' from database
-			req = "SELECT P.id as id, uuid, name, bonus, home_tp FROM " + DatabaseManager.table.get("players") + " P LEFT JOIN "
-					+ DatabaseManager.table.get("players_datas") + " HB ON P.id = HB.player_id WHERE uuid = ?";
+			req = "SELECT P.id as id, uuid, name, bonus, home_tp FROM " + DatabaseManager.table.PLAYERS + " P LEFT JOIN "
+					+ DatabaseManager.table.PLAYERS_DATA + " HB ON P.id = HB.player_id WHERE uuid = ?";
 			ps = bdd.prepareStatement(req);
 			ps.setString(1, getPlayerUUID().toString());
 
@@ -57,7 +57,7 @@ public class NKPlayer
 			if(resultat.next())
 			{
 				setId(resultat.getInt("id"));
-				setPlayerName(resultat.getString("name"));
+				String tmpName = resultat.getString("name");
 
 				setHomeBonus(resultat.getInt("bonus"));
 				if(resultat.wasNull())
@@ -65,7 +65,7 @@ public class NKPlayer
 					ps.close();
 					resultat.close();
 
-					req = "INSERT INTO " + DatabaseManager.table.get("players_datas") + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";
+					req = "INSERT INTO " + DatabaseManager.table.PLAYERS_DATA + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";
 					ps = bdd.prepareStatement(req);
 					ps.setInt(1, this.getId());
 					ps.executeUpdate();
@@ -84,21 +84,24 @@ public class NKPlayer
 				ps.close();
 				resultat.close();
 
-				// If names are differents, update in database
-				if(!playerName.equals(getPlayerName()))
+				if(NKhome.managePlayerDb)
 				{
-					req = "UPDATE " + DatabaseManager.table.get("players") + " SET name = ? WHERE id = ?";
-					ps = bdd.prepareStatement(req);
-					ps.setString(1, getPlayerName());
-					ps.setInt(2, getId());
+					// If names are differents, update in database
+					if(!tmpName.equals(getPlayerName()))
+					{
+						req = "UPDATE " + DatabaseManager.table.PLAYERS + " SET name = ? WHERE id = ?";
+						ps = bdd.prepareStatement(req);
+						ps.setString(1, getPlayerName());
+						ps.setInt(2, getId());
 
-					ps.executeUpdate();
-					ps.close();
+						ps.executeUpdate();
+						ps.close();
+					}
 				}
 
 				if(homeTp != -1)
 				{
-					req = "SELECT server, name, world, x, y, z, pitch, yaw FROM " + DatabaseManager.table.get("homes") + " WHERE id = ?";
+					req = "SELECT server, name, world, x, y, z, pitch, yaw FROM " + DatabaseManager.table.HOMES + " WHERE id = ?";
 					ps = bdd.prepareStatement(req);
 					ps.setInt(1, homeTp);
 					resultat = ps.executeQuery();
@@ -157,7 +160,7 @@ public class NKPlayer
 					setTpHome(-1);
 				}
 
-				req = "SELECT id, server, name, world, x, y, z, pitch, yaw FROM " + DatabaseManager.table.get("homes") + " WHERE player_id = ?";
+				req = "SELECT id, server, name, world, x, y, z, pitch, yaw FROM " + DatabaseManager.table.HOMES + " WHERE player_id = ?";
 				ps = bdd.prepareStatement(req);
 				ps.setInt(1, getId());
 				resultat = ps.executeQuery();
@@ -182,7 +185,7 @@ public class NKPlayer
 				ps.close();
 				resultat.close();
 
-				req = "INSERT INTO " + DatabaseManager.table.get("players") + " ( uuid, name) VALUES ( ? , ? )";
+				req = "INSERT INTO " + DatabaseManager.table.PLAYERS + " ( uuid, name) VALUES ( ? , ? ) ON DUPLICATE KEY UPDATE id = id";
 				ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, getPlayerUUID().toString());
 				ps.setString(2, getPlayerName());
@@ -195,7 +198,7 @@ public class NKPlayer
 				ps.close();
 				resultat.close();
 
-				req = "INSERT INTO " + DatabaseManager.table.get("players_datas") + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";
+				req = "INSERT INTO " + DatabaseManager.table.PLAYERS_DATA + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";
 				ps = bdd.prepareStatement(req);
 				ps.setInt(1, this.getId());
 				ps.executeUpdate();
@@ -324,7 +327,7 @@ public class NKPlayer
 		{
 			bdd = DatabaseManager.getConnection();
 
-			req = "UPDATE " + DatabaseManager.table.get("players_datas") + " SET home_tp = ? WHERE player_id = ?";
+			req = "UPDATE " + DatabaseManager.table.PLAYERS_DATA + " SET home_tp = ? WHERE player_id = ?";
 			ps = bdd.prepareStatement(req);
 			ps.setInt(1, homeTp);
 			ps.setInt(2, getId());
@@ -349,7 +352,7 @@ public class NKPlayer
 		try
 		{
 			bdd = DatabaseManager.getConnection();
-			req = "DELETE FROM " + DatabaseManager.table.get("homes") + " WHERE id = ?";
+			req = "DELETE FROM " + DatabaseManager.table.HOMES + " WHERE id = ?";
 			ps = bdd.prepareStatement(req);
 			ps.setInt(1, homeTp);
 			ps.executeUpdate();

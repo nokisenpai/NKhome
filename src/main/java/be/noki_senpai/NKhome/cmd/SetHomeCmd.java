@@ -69,13 +69,7 @@ public class SetHomeCmd implements CommandExecutor
 						{
 							homeManager.updateHome(sender.getName(), args[0], ((Player) sender).getLocation());
 
-							new BukkitRunnable()
-							{
-								@Override public void run()
-								{
-									sender.sendMessage(ChatColor.GREEN + " Votre home '" + args[0] + "' a été mis à jour.");
-								}
-							}.runTask(NKhome.getPlugin());
+							sender.sendMessage(ChatColor.GREEN + " Votre home '" + args[0] + "' a été mis à jour.");
 
 							return null;
 						}

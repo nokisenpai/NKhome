@@ -18,7 +18,6 @@ import be.noki_senpai.NKhome.utils.SQLConnect;
 public class DatabaseManager
 {
 	private static Connection bdd = null;
-	public static Map<String, String> table = new HashMap<>();
 
 	private ConsoleCommandSender console = null;
 	private ConfigManager configManager = null;
@@ -29,13 +28,30 @@ public class DatabaseManager
 		this.configManager = configManager;
 	}
 
+	public enum table
+	{
+		HOMES(ConfigManager.PREFIX + "homes"), PLAYERS_DATA(ConfigManager.PREFIX + "players_data"), PLAYERS("NK_players");
+
+		private String name = "";
+
+		table(String name)
+		{
+			this.name = name;
+		}
+
+		public String toString()
+		{
+			return name;
+		}
+
+		public static int size()
+		{
+			return 3;
+		}
+	}
+
 	public boolean loadDatabase()
 	{
-		// Save table name
-		table.put("homes", ConfigManager.PREFIX + "homes");
-		table.put("players_datas", ConfigManager.PREFIX + "players_datas");
-		table.put("players", "NK_players");
-
 		// Setting database informations
 		SQLConnect.setInfo(configManager.getDbHost(), configManager.getDbPort(), configManager.getDbName(), configManager.getDbUser(), configManager.getDbPassword());
 
@@ -47,8 +63,8 @@ public class DatabaseManager
 		catch(SQLException e)
 		{
 			bdd = null;
-			console.sendMessage(ChatColor.DARK_RED + NKhome.PNAME
-					+ " Error while attempting database connexion. Verify your access informations in config.yml");
+			console.sendMessage(
+					ChatColor.DARK_RED + NKhome.PNAME + " Error while attempting database connexion. Verify your access informations in config.yml");
 			e.printStackTrace();
 			return false;
 		}
@@ -162,15 +178,15 @@ public class DatabaseManager
 			try
 			{
 				// Creating players table
-				req = "CREATE TABLE IF NOT EXISTS `" + table.get("players") + "` (" + "`id` int(11) NOT NULL AUTO_INCREMENT,"
-						+ "`uuid` varchar(40) NOT NULL," + "`name` varchar(40) NOT NULL," + "PRIMARY KEY (`id`),"
-						+ "UNIQUE KEY `uuid_unique` (`uuid`) USING BTREE" + ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+				req = "CREATE TABLE IF NOT EXISTS `" + table.PLAYERS + "` (`id` int(11) NOT NULL AUTO_INCREMENT,"
+						+ "`uuid` varchar(40) NOT NULL,`name` varchar(40) NOT NULL,`server` varchar(40) ,PRIMARY KEY (`id`),"
+						+ "UNIQUE KEY `uuid_unique` (`uuid`) USING BTREE) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 				s = bdd.createStatement();
 				s.execute(req);
 				s.close();
 
 				// Creating players_datas table
-				req = "CREATE TABLE IF NOT EXISTS `" + table.get("players_datas") + "` (" + "`id` int(11) NOT NULL AUTO_INCREMENT,"
+				req = "CREATE TABLE IF NOT EXISTS `" + table.PLAYERS_DATA + "` (" + "`id` int(11) NOT NULL AUTO_INCREMENT,"
 						+ "`player_id` int(11) NOT NULL," + "`bonus` int(11) NOT NULL," + "`home_tp` int(11)," + "PRIMARY KEY (`id`)"
 						+ ") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 				s = bdd.createStatement();
@@ -178,7 +194,7 @@ public class DatabaseManager
 				s.close();
 
 				// Creating homes table
-				req = "CREATE TABLE IF NOT EXISTS `" + table.get("homes") + "` (" + "`id` int(11) NOT NULL AUTO_INCREMENT,"
+				req = "CREATE TABLE IF NOT EXISTS `" + table.HOMES + "` (" + "`id` int(11) NOT NULL AUTO_INCREMENT,"
 						+ "`player_id` int(11) NOT NULL," + "`server` varchar(40) NOT NULL," + "`name` varchar(40) NOT NULL,"
 						+ "`world` varchar(40) NOT NULL," + "`x` double NOT NULL," + "`y` double NOT NULL," + "`z` double NOT NULL,"
 						+ "`pitch` float NOT NULL," + "`yaw` float NOT NULL," + "PRIMARY KEY (`id`),"

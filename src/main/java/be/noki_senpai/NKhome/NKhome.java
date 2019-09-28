@@ -8,6 +8,7 @@ import be.noki_senpai.NKhome.managers.Manager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class NKhome extends JavaPlugin
@@ -16,6 +17,7 @@ public class NKhome extends JavaPlugin
 	private Manager manager = null;
 	private ConsoleCommandSender console = null;
 	private static NKhome plugin = null;
+	public static boolean managePlayerDb = true;
 
 	// Fired when plugin is first enabled
 	@Override public void onEnable()
@@ -26,6 +28,8 @@ public class NKhome extends JavaPlugin
 
 		console = Bukkit.getConsoleSender();
 		manager = new Manager(this);
+
+		managePlayerDb = checkNKPlugin();
 
 		// Load configuration
 		if(!manager.getConfigManager().loadConfig())
@@ -92,5 +96,18 @@ public class NKhome extends JavaPlugin
 	public void disablePlugin()
 	{
 		getServer().getPluginManager().disablePlugin(this);
+	}
+
+	// ######################################
+	// Check other NK plugins
+	// ######################################
+	public boolean checkNKPlugin()
+	{
+		if(getServer().getPluginManager().getPlugin("NKeconomy") != null)
+		{
+			console.sendMessage(ChatColor.GREEN + PNAME + " plugin NKeconomy detected. Let NKeconomy manages NKPlayers table in database.");
+			return false;
+		}
+		return true;
 	}
 }
