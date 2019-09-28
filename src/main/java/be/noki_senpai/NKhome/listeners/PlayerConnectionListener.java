@@ -30,6 +30,10 @@ public class PlayerConnectionListener implements Listener
 			@Override public Object apply(Object o)
 			{
 				homeManager.addPlayer(event.getPlayer());
+				if(NKhome.managePlayerDb)
+				{
+					homeManager.addOtherServer(event.getPlayer().getName());
+				}
 				return null;
 			}
 		});
@@ -38,6 +42,10 @@ public class PlayerConnectionListener implements Listener
 	@EventHandler
 	public void onPlayerQuitEvent(final PlayerQuitEvent event) 
 	{
+		if(NKhome.managePlayerDb)
+		{
+			homeManager.removeOtherServer(event.getPlayer().getName());
+		}
 		homeManager.delPlayer(event.getPlayer().getName());
 	}
 }

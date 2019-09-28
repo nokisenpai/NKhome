@@ -94,7 +94,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 						bdd = DatabaseManager.getConnection();
 
 						// Get all current players stored on database
-						req = new StringBuilder("SELECT id, uuid FROM " + DatabaseManager.table.get("players"));
+						req = new StringBuilder("SELECT id, uuid FROM " + DatabaseManager.table.PLAYERS);
 						ps = bdd.prepareStatement(req.toString());
 						resultat = ps.executeQuery();
 
@@ -180,8 +180,8 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 								// Insert this player on database
 								try
 								{
-									req = new StringBuilder("INSERT INTO " + DatabaseManager.table.get("players")
-											+ " ( uuid, name) VALUES ( ? , ? ) ON DUPLICATE KEY UPDATE name = name");
+									req = new StringBuilder("INSERT INTO " + DatabaseManager.table.PLAYERS
+											+ " ( uuid, name) VALUES ( ? , ? ) ON DUPLICATE KEY UPDATE id = id");
 									ps = bdd.prepareStatement(req.toString(), Statement.RETURN_GENERATED_KEYS);
 									ps.setString(1, uuid.toString());
 									ps.setString(2, playerName);
@@ -194,7 +194,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 									ps.close();
 									resultat.close();
 
-									req = new StringBuilder("INSERT INTO " + DatabaseManager.table.get("players_datas")
+									req = new StringBuilder("INSERT INTO " + DatabaseManager.table.PLAYERS_DATA
 											+ " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )");
 									ps = bdd.prepareStatement(req.toString());
 									ps.setInt(1, id);
@@ -351,7 +351,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 								nbHome += homes.size();
 
 								// Insert each home from this player on database
-								req = new StringBuilder("INSERT INTO " + DatabaseManager.table.get("homes")
+								req = new StringBuilder("INSERT INTO " + DatabaseManager.table.HOMES
 										+ " ( player_id, server, name, world, x, y, z, pitch, yaw) VALUES ");
 								for(Home home : homes.values())
 								{
