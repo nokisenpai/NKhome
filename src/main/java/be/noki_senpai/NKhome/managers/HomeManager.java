@@ -394,7 +394,7 @@ public class HomeManager
 		try
 		{
 			bdd = DatabaseManager.getConnection();
-			req = "SELECT h.id, server , h.name , world , x , y , z , pitch , yaw FROM " + DatabaseManager.table.HOMES + " h LEFT JOIN "
+			req = "SELECT h.id, h.server , h.name , world , x , y , z , pitch , yaw FROM " + DatabaseManager.table.HOMES + " h LEFT JOIN "
 					+ DatabaseManager.table.PLAYERS + " p ON h.player_id = p.id WHERE p.name = ?";
 			ps = bdd.prepareStatement(req);
 			ps.setString(1, playerName);
