@@ -18,6 +18,9 @@ import be.noki_senpai.NKhome.data.Home;
 import be.noki_senpai.NKhome.data.NKPlayer;
 import be.noki_senpai.NKhome.utils.CoordTask;
 import org.bukkit.entity.Player;
+import org.bukkit.map.MapCursor;
+import org.bukkit.map.MapRenderer;
+import org.bukkit.map.MapView;
 
 public class HomeManager
 {
@@ -394,7 +397,7 @@ public class HomeManager
 		try
 		{
 			bdd = DatabaseManager.getConnection();
-			req = "SELECT h.id, server , h.name , world , x , y , z , pitch , yaw FROM " + DatabaseManager.table.HOMES + " h LEFT JOIN "
+			req = "SELECT h.id, h.server , h.name , world , x , y , z , pitch , yaw FROM " + DatabaseManager.table.HOMES + " h LEFT JOIN "
 					+ DatabaseManager.table.PLAYERS + " p ON h.player_id = p.id WHERE p.name = ?";
 			ps = bdd.prepareStatement(req);
 			ps.setString(1, playerName);
@@ -507,7 +510,7 @@ public class HomeManager
 
 	public boolean isBedBlock(Home homeBed)
 	{
-		if(Bukkit.getServer().getWorld(homeBed.getWorld()).getBlockAt((int) homeBed.getX(), (int) homeBed.getY(), (int) homeBed.getZ()).getBlockData() instanceof org.bukkit.block.data.type.Bed)
+		if(Bukkit.getServer().getWorld(homeBed.getWorld()).getBlockAt((int) CoordTask.BlockCoord(homeBed.getX()), (int) homeBed.getY(), (int) CoordTask.BlockCoord(homeBed.getZ())).getBlockData() instanceof org.bukkit.block.data.type.Bed)
 		{
 			return true;
 		}

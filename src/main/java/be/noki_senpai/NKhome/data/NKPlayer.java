@@ -185,18 +185,31 @@ public class NKPlayer
 				ps.close();
 				resultat.close();
 
-				req = "INSERT INTO " + DatabaseManager.table.PLAYERS + " ( uuid, name) VALUES ( ? , ? ) ON DUPLICATE KEY UPDATE id = id";
+				req = "INSERT INTO " + DatabaseManager.table.PLAYERS + " ( uuid, name) VALUES ( ? , ? ) ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)";
 				ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, getPlayerUUID().toString());
 				ps.setString(2, getPlayerName());
 				ps.executeUpdate();
 				resultat = ps.getGeneratedKeys();
 
-				resultat.next();
-				setId(resultat.getInt(1));
+				if(resultat.next())
+				{
+					setId(resultat.getInt(1));
+				}
+				else
+				{
+					ps.close();
+					resultat.close();
+					Statement s = bdd.createStatement();
+					ResultSet rs = s.executeQuery("SELECT LAST_INSERT_ID() AS n");
+					resultat.next();
+					setId(resultat.getInt(1));
+				}
 
 				ps.close();
 				resultat.close();
+
+
 
 				req = "INSERT INTO " + DatabaseManager.table.PLAYERS_DATA + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";
 				ps = bdd.prepareStatement(req);

@@ -1,6 +1,6 @@
 name: NKhome
 main: be.noki_senpai.NKhome.NKhome
-version: 1.3.2
+version: 1.3.5
 api-version: 1.14
 author: 'NoKi_senpai'
 description: 'Allows players to have homes'
