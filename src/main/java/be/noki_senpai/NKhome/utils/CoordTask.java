@@ -68,30 +68,30 @@ public class CoordTask
 			if(world.getBlockAt(CoordTask.BlockCoord(x) + 1, (int) y, CoordTask.BlockCoord(z)).getType().isTransparent()
 					&& world.getBlockAt(CoordTask.BlockCoord(x) + 1, (int) y + 1, CoordTask.BlockCoord(z)).getType().isTransparent())
 			{
-				return new Location(world, x + 1, y, z, yaw, pitch);
+				return new Location(world, x + 1, y + 0.5, z, yaw, pitch);
 			}
 			// gauche
 			if(world.getBlockAt(CoordTask.BlockCoord(x) - 1, (int) y, CoordTask.BlockCoord(z)).getType().isTransparent()
 					&& world.getBlockAt(CoordTask.BlockCoord(x) - 1, (int) y + 1, CoordTask.BlockCoord(z)).getType().isTransparent())
 			{
-				return new Location(world, x - 1, y, z, yaw, pitch);
+				return new Location(world, x - 1, y + 0.5, z, yaw, pitch);
 			}
 			// haut
 			if(world.getBlockAt(CoordTask.BlockCoord(x), (int) y, CoordTask.BlockCoord(z) + 1).getType().isTransparent()
 					&& world.getBlockAt(CoordTask.BlockCoord(x), (int) y + 1, CoordTask.BlockCoord(z) + 1).getType().isTransparent())
 			{
-				return new Location(world, x, y, z + 1, yaw, pitch);
+				return new Location(world, x, y + 0.5, z + 1, yaw, pitch);
 			}
 			// bas
 			if(world.getBlockAt(CoordTask.BlockCoord(x), (int) y, CoordTask.BlockCoord(z) - 1).getType().isTransparent()
 					&& world.getBlockAt(CoordTask.BlockCoord(x), (int) y + 1, CoordTask.BlockCoord(z) - 1).getType().isTransparent())
 			{
-				return new Location(world, x, y, z - 1, yaw, pitch);
+				return new Location(world, x, y + 0.5, z - 1, yaw, pitch);
 			}
 			// Bed location
 			if(world.getBlockAt(CoordTask.BlockCoord(x), (int) y + 1, CoordTask.BlockCoord(z)).getType().isTransparent())
 			{
-				return new Location(world, x, y, z, yaw, pitch);
+				return new Location(world, x, y + 0.5, z, yaw, pitch);
 			}
 		}
 		return null;
