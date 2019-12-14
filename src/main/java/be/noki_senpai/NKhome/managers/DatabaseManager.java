@@ -30,7 +30,9 @@ public class DatabaseManager
 
 	public enum table
 	{
-		HOMES(ConfigManager.PREFIX + "homes"), PLAYERS_DATA(ConfigManager.PREFIX + "players_data"), PLAYERS("NK_players");
+		HOMES(ConfigManager.PREFIX + "homes"),
+		PLAYERS_DATA(ConfigManager.PREFIX + "players_data"),
+		PLAYERS("NK_players");
 
 		private String name = "";
 

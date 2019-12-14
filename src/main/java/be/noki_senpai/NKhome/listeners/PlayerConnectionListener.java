@@ -36,7 +36,7 @@ public class PlayerConnectionListener implements Listener
 					homeManager.addOtherServer(event.getPlayer().getName());
 				}
 			}
-		}.runTaskLaterAsynchronously(NKhome.getPlugin(), 20);
+		}.runTaskLaterAsynchronously(NKhome.getPlugin(), 10);
 	}
 
 	@EventHandler
