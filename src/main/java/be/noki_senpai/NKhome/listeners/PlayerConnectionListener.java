@@ -9,7 +9,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import be.noki_senpai.NKhome.NKhome;
-import be.noki_senpai.NKhome.data.NKPlayer;;import java.util.function.Function;
+import be.noki_senpai.NKhome.data.NKPlayer;
+import org.bukkit.scheduler.BukkitRunnable;;import java.util.function.Function;
 
 public class PlayerConnectionListener implements Listener
 {
@@ -25,18 +26,17 @@ public class PlayerConnectionListener implements Listener
 	@EventHandler
 	public void PlayerJoinEvent(final PlayerJoinEvent event) 
 	{
-		queueManager.addToQueue(new Function()
+		new BukkitRunnable()
 		{
-			@Override public Object apply(Object o)
+			@Override public void run()
 			{
 				homeManager.addPlayer(event.getPlayer());
 				if(NKhome.managePlayerDb)
 				{
 					homeManager.addOtherServer(event.getPlayer().getName());
 				}
-				return null;
 			}
-		});
+		}.runTaskLaterAsynchronously(NKhome.getPlugin(), 20);
 	}
 
 	@EventHandler
