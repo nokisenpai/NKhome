@@ -43,7 +43,6 @@ public class NKPlayer
 		try
 		{
 			bdd = DatabaseManager.getConnection();
-			;
 
 			// Get 'id', 'uuid', 'name', 'amount' and 'home_tp' from database
 			req = "SELECT P.id as id, uuid, name, bonus, home_tp FROM " + DatabaseManager.common.PLAYERS + " P LEFT JOIN "
