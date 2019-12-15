@@ -17,7 +17,6 @@ public class NKhome extends JavaPlugin
 	private Manager manager = null;
 	private ConsoleCommandSender console = null;
 	private static NKhome plugin = null;
-	public static boolean managePlayerDb = true;
 
 	// Fired when plugin is first enabled
 	@Override public void onEnable()
@@ -29,7 +28,12 @@ public class NKhome extends JavaPlugin
 		console = Bukkit.getConsoleSender();
 		manager = new Manager(this);
 
-		managePlayerDb = checkNKPlugin();
+		if(!checkNKmanager())
+		{
+			console.sendMessage(ChatColor.DARK_RED + PNAME + " NKmanager in not enabled !");
+			disablePlugin();
+			return;
+		}
 
 		// Load configuration
 		if(!manager.getConfigManager().loadConfig())
@@ -99,15 +103,11 @@ public class NKhome extends JavaPlugin
 	}
 
 	// ######################################
-	// Check other NK plugins
+	// Check if NKmanager is enabled
 	// ######################################
-	public boolean checkNKPlugin()
+
+	public boolean checkNKmanager()
 	{
-		if(getServer().getPluginManager().getPlugin("NKeconomy") != null)
-		{
-			console.sendMessage(ChatColor.GREEN + PNAME + " plugin NKeconomy detected. Let NKeconomy manages NKPlayers table in database.");
-			return false;
-		}
-		return true;
+		return getServer().getPluginManager().getPlugin("NKmanager").isEnabled();
 	}
 }
