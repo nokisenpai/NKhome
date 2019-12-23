@@ -43,10 +43,9 @@ public class NKPlayer
 		try
 		{
 			bdd = DatabaseManager.getConnection();
-			;
 
 			// Get 'id', 'uuid', 'name', 'amount' and 'home_tp' from database
-			req = "SELECT P.id as id, uuid, name, bonus, home_tp FROM " + DatabaseManager.table.PLAYERS + " P LEFT JOIN "
+			req = "SELECT P.id as id, uuid, name, bonus, home_tp FROM " + DatabaseManager.common.PLAYERS + " P LEFT JOIN "
 					+ DatabaseManager.table.PLAYERS_DATA + " HB ON P.id = HB.player_id WHERE uuid = ?";
 			ps = bdd.prepareStatement(req);
 			ps.setString(1, getPlayerUUID().toString());
@@ -83,21 +82,6 @@ public class NKPlayer
 
 				ps.close();
 				resultat.close();
-
-				if(NKhome.managePlayerDb)
-				{
-					// If names are differents, update in database
-					if(!tmpName.equals(getPlayerName()))
-					{
-						req = "UPDATE " + DatabaseManager.table.PLAYERS + " SET name = ? WHERE id = ?";
-						ps = bdd.prepareStatement(req);
-						ps.setString(1, getPlayerName());
-						ps.setInt(2, getId());
-
-						ps.executeUpdate();
-						ps.close();
-					}
-				}
 
 				if(homeTp != -1)
 				{
@@ -181,42 +165,7 @@ public class NKPlayer
 			}
 			else
 			{
-				//Add new player on database
-				ps.close();
-				resultat.close();
-
-				req = "INSERT INTO " + DatabaseManager.table.PLAYERS + " ( uuid, name) VALUES ( ? , ? ) ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)";
-				ps = bdd.prepareStatement(req, Statement.RETURN_GENERATED_KEYS);
-				ps.setString(1, getPlayerUUID().toString());
-				ps.setString(2, getPlayerName());
-				ps.executeUpdate();
-				resultat = ps.getGeneratedKeys();
-
-				if(resultat.next())
-				{
-					setId(resultat.getInt(1));
-				}
-				else
-				{
-					ps.close();
-					resultat.close();
-					Statement s = bdd.createStatement();
-					ResultSet rs = s.executeQuery("SELECT LAST_INSERT_ID() AS n");
-					resultat.next();
-					setId(resultat.getInt(1));
-				}
-
-				ps.close();
-				resultat.close();
-
-
-
-				req = "INSERT INTO " + DatabaseManager.table.PLAYERS_DATA + " ( player_id, bonus, home_tp) VALUES ( ? , 0 , -1 )";
-				ps = bdd.prepareStatement(req);
-				ps.setInt(1, this.getId());
-				ps.executeUpdate();
-
-				ps.close();
+				Bukkit.getConsoleSender().sendMessage(ChatColor.DARK_RED + NKhome.PNAME + " Error while setting a player. (#1)");
 			}
 		}
 		catch(SQLException e)

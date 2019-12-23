@@ -94,7 +94,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 						bdd = DatabaseManager.getConnection();
 
 						// Get all current players stored on database
-						req = new StringBuilder("SELECT id, uuid FROM " + DatabaseManager.table.PLAYERS);
+						req = new StringBuilder("SELECT id, uuid FROM " + DatabaseManager.common.PLAYERS);
 						ps = bdd.prepareStatement(req.toString());
 						resultat = ps.executeQuery();
 
@@ -180,7 +180,7 @@ public class ConvertEssentialsHomesCmd implements CommandExecutor
 								// Insert this player on database
 								try
 								{
-									req = new StringBuilder("INSERT INTO " + DatabaseManager.table.PLAYERS
+									req = new StringBuilder("INSERT INTO " + DatabaseManager.common.PLAYERS
 											+ " ( uuid, name) VALUES ( ? , ? ) ON DUPLICATE KEY UPDATE id = id");
 									ps = bdd.prepareStatement(req.toString(), Statement.RETURN_GENERATED_KEYS);
 									ps.setString(1, uuid.toString());

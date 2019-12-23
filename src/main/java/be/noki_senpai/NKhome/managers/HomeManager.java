@@ -398,7 +398,7 @@ public class HomeManager
 		{
 			bdd = DatabaseManager.getConnection();
 			req = "SELECT h.id, h.server , h.name , world , x , y , z , pitch , yaw FROM " + DatabaseManager.table.HOMES + " h LEFT JOIN "
-					+ DatabaseManager.table.PLAYERS + " p ON h.player_id = p.id WHERE p.name = ?";
+					+ DatabaseManager.common.PLAYERS + " p ON h.player_id = p.id WHERE p.name = ?";
 			ps = bdd.prepareStatement(req);
 			ps.setString(1, playerName);
 
@@ -530,7 +530,7 @@ public class HomeManager
 		{
 			bdd = DatabaseManager.getConnection();
 
-			req = "SELECT server FROM " + DatabaseManager.table.PLAYERS + " WHERE name = ?";
+			req = "SELECT server FROM " + DatabaseManager.common.PLAYERS + " WHERE name = ?";
 			ps = bdd.prepareStatement(req);
 			ps.setString(1, playername);
 
@@ -554,54 +554,5 @@ public class HomeManager
 		}
 
 		return null;
-	}
-
-	// Add a player entry on sql DB with his server
-	public void addOtherServer(String playername)
-	{
-		Connection bdd = null;
-		PreparedStatement ps = null;
-		String req = null;
-
-		try
-		{
-			bdd = DatabaseManager.getConnection();
-
-			req = "UPDATE " + DatabaseManager.table.PLAYERS + " SET server = ? WHERE name = ?";
-			ps = bdd.prepareStatement(req);
-			ps.setString(1, ConfigManager.SERVERNAME);
-			ps.setString(2, playername);
-
-			ps.execute();
-			ps.close();
-		}
-		catch(SQLException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	// Remove a player entry on sql DB with his server
-	public void removeOtherServer(String playername)
-	{
-		Connection bdd = null;
-		PreparedStatement ps = null;
-		String req = null;
-
-		try
-		{
-			bdd = DatabaseManager.getConnection();
-
-			req = "UPDATE " + DatabaseManager.table.PLAYERS + " SET server = NULL WHERE name = ?";
-			ps = bdd.prepareStatement(req);
-			ps.setString(1, playername);
-
-			ps.execute();
-			ps.close();
-		}
-		catch(SQLException e)
-		{
-			e.printStackTrace();
-		}
 	}
 }
