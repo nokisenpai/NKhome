@@ -13,7 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class NKhome extends JavaPlugin
 {
-	public final static String PNAME = "[NKhome]";
+	public final static String PNAME = "[NKsort]";
 	private Manager manager = null;
 	private ConsoleCommandSender console = null;
 	private static NKhome plugin = null;
@@ -53,7 +53,7 @@ public class NKhome extends JavaPlugin
 		manager.getHomeManager().loadHome();
 
 		// Register listeners
-		getServer().getPluginManager().registerEvents(new PlayerConnectionListener(manager.getHomeManager(), manager.getQueueManager()), this);
+		getServer().getPluginManager().registerEvents(new PlayerConnectionListener(manager.getHomeManager()), this);
 		getServer().getPluginManager().registerEvents(new PlayerBedEnter(manager.getHomeManager(), manager.getQueueManager()), this);
 
 		// Set tabulation completers

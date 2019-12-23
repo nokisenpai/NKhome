@@ -15,12 +15,10 @@ import org.bukkit.scheduler.BukkitRunnable;;import java.util.function.Function;
 public class PlayerConnectionListener implements Listener
 {
 	private HomeManager homeManager = null;
-	private QueueManager queueManager = null;
 
-	public PlayerConnectionListener(HomeManager homeManager, QueueManager queueManager)
+	public PlayerConnectionListener(HomeManager homeManager)
 	{
 		this.homeManager = homeManager;
-		this.queueManager = queueManager;
 	}
 
 	@EventHandler
